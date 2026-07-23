@@ -22,14 +22,7 @@ interface GenerationOptions {
 export const generateImage = async (options: GenerationOptions): Promise<string | null> => {
   const { model, prompt, aspectRatio = '1:1', useSearch = false, referenceImages = [] } = options;
 
-  // API 키를 매번 새로 가져와서 인스턴스 생성 (다이얼로그에서 선택된 최신 키 반영)
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || "";
-  
-  if (!apiKey) {
-    throw new Error("API Key가 설정되지 않았습니다. 우측 상단의 'Connect API Key'를 통해 키를 설정해주세요.");
-  }
-
-  const ai = getGeminiClient(apiKey);
+  const ai = getGeminiClient();
 
   // 이미지 파트들을 먼저 넣고 텍스트 지시사항을 마지막에 배치 (모델 인식률 향상)
   const parts: any[] = [];
@@ -132,9 +125,7 @@ export const generateImage = async (options: GenerationOptions): Promise<string 
 
 export const editImage = async (baseImage: string, prompt: string, model: ImageModel = 'gemini-3.1-flash-image'): Promise<string | null> => {
   try {
-    // API 키를 매번 새로 가져와서 인스턴스 생성
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || "";
-    const ai = getGeminiClient(apiKey);
+    const ai = getGeminiClient();
 
     let response: GenerateContentResponse | null = null;
     let retries = 0;
