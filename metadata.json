@@ -1,0 +1,6 @@
+{
+  "name": "오리 마케팅",
+  "description": "오리 마케팅",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

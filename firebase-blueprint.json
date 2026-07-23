@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "BlogHistory": {
+      "title": "BlogHistory",
+      "description": "Records of generated blog posts for duplication checks",
+      "type": "object",
+      "properties": {
+        "publishDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date the post was generated/published"
+        },
+        "target": {
+          "type": "string",
+          "description": "The target audience (e.g., 직장인, 주부, 학생, 노년층, 교통사고환자)"
+        },
+        "situation": {
+          "type": "string",
+          "description": "The situation or context (e.g., 업무피로, 스포츠손상, 환절기면역)"
+        },
+        "treatments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The treatments used (e.g., 침, 도침, 한약, 다이어트 한약, 약침, 경옥고, 공진단, 추나)"
+        }
+      },
+      "required": ["publishDate", "target", "situation", "treatments"]
+    }
+  },
+  "firestore": {
+    "/blog_history/{historyId}": {
+      "schema": {
+        "$ref": "#/entities/BlogHistory"
+      },
+      "description": "Stores the history of generated blog posts"
+    }
+  }
+}

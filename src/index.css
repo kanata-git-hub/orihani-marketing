@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: 'KyoboHandwriting2024_ParkSeoWoo';
+    src: url('./assets/KyoboHandwriting2024psw.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@theme {
+  --font-sans: "KyoboHandwriting2024_ParkSeoWoo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "KyoboHandwriting2024_ParkSeoWoo", ui-monospace, SFMono-Regular, monospace;
+
+  /* Increase base text sizes because handwriting fonts appear smaller */
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.875rem;
+  --text-3xl: 2.25rem;
+  --text-4xl: 3rem;
+
+  /* Global Color Overrides for #552c24 (Main) and #ffcd4a (Accent) */
+  
+  /* Replace Blue with Main Color variations */
+  --color-blue-50: #fffcf8;
+  --color-blue-100: #f5efe6;
+  --color-blue-200: #e8dfd1;
+  --color-blue-300: #d1bfae;
+  --color-blue-400: #a88b7d;
+  --color-blue-500: #7a5c51;
+  --color-blue-600: #552c24; /* Main */
+  --color-blue-700: #3f201a;
+  --color-blue-800: #2a1511;
+  --color-blue-900: #150a08;
+
+  /* Replace Gray with Warm Beige/Brown variations */
+  --color-gray-50: #fffcf8;
+  --color-gray-100: #f5efe6;
+  --color-gray-200: #e8dfd1;
+  --color-gray-300: #d1bfae;
+  --color-gray-400: #a88b7d;
+  --color-gray-500: #7a5c51;
+  --color-gray-600: #552c24;
+  --color-gray-700: #3f201a;
+  --color-gray-800: #2a1511;
+  --color-gray-900: #150a08;
+
+  /* Replace Zinc with Main Color variations */
+  --color-zinc-50: #fffcf8;
+  --color-zinc-100: #f5efe6;
+  --color-zinc-200: #e8dfd1;
+  --color-zinc-300: #d1bfae;
+  --color-zinc-400: #a88b7d;
+  --color-zinc-500: #7a5c51;
+  --color-zinc-600: #552c24;
+  --color-zinc-700: #3f201a;
+  --color-zinc-800: #2a1511;
+  --color-zinc-900: #552c24; /* Main */
+
+  /* Replace Black with Main Color */
+  --color-black: #552c24;
+  
+  /* Keep White as pure white for card contrast */
+  --color-white: #ffffff;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: #2a1511;
+  background-color: #fffcf8;
+}
+
+/* Make headings bold for readability */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  color: #552c24;
+}
+
+/* Accent Highlights */
+.accent-text {
+  color: #ffcd4a;
+}
+.accent-bg {
+  background-color: #ffcd4a;
+  color: #552c24;
+}
+
+/* Primary Buttons (Main Background + Accent Text) */
+.bg-blue-600, .bg-black, .bg-zinc-900 {
+  background-color: #552c24 !important;
+  color: #ffcd4a !important;
+}
+.bg-blue-600:hover, .bg-black:hover, .bg-zinc-900:hover {
+  background-color: #3f201a !important;
+}
+.bg-blue-600 svg, .bg-black svg, .bg-zinc-900 svg {
+  color: #ffcd4a !important;
+}
+
+/* Active Tabs Border */
+.border-blue-600 {
+  border-color: #ffcd4a !important;
+}
+.text-blue-600 {
+  color: #552c24 !important;
+}@layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
