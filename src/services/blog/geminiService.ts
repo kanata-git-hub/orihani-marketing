@@ -352,9 +352,9 @@ export async function generateBlogPost(
       
       if ((isOverloaded || isNotFound) && attempt < maxRetries) {
         if (currentModel === "gemini-3.1-pro-preview") {
-            currentModel = "gemini-3-flash-preview";
-        } else if (currentModel === "gemini-3-flash-preview") {
-            currentModel = "gemini-3.1-flash-lite";
+            currentModel = "gemini-3.6-flash";
+        } else if (currentModel === "gemini-3.6-flash") {
+            currentModel = "gemini-3.5-flash-lite";
         } else {
             currentModel = "gemini-3.1-pro-preview";
         }

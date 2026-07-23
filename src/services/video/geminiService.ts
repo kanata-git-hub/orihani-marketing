@@ -126,7 +126,7 @@ ACTION: [EXTREMELY detailed description of actions, micro-expressions, object in
 STRICT RULES (CRITICAL): [Anatomical boundaries. ENFORCE SOLID DUCK BILL. NO CLIPPING]
     `;
 
-    let currentModel = "gemini-3.1-pro-preview";
+    let currentModel = "gemini-3.6-flash";
     let attempt = 0;
     while (attempt < maxRetries) {
       try {
@@ -162,12 +162,10 @@ STRICT RULES (CRITICAL): [Anatomical boundaries. ENFORCE SOLID DUCK BILL. NO CLI
         const isOverloaded = e?.message?.includes('503') || e?.message?.includes('429') || e?.status === 503 || e?.status === 429 || String(e).includes('503') || String(e).includes('429');
         const isNotFound = e?.message?.includes('404') || e?.status === 404 || String(e).includes('404');
         if ((isOverloaded || isNotFound) && attempt < maxRetries) {
-          if (currentModel === "gemini-3.1-pro-preview") {
-              currentModel = "gemini-3-flash-preview";
-          } else if (currentModel === "gemini-3-flash-preview") {
-              currentModel = "gemini-3.1-flash-lite";
+          if (currentModel === "gemini-3.6-flash") {
+              currentModel = "gemini-3.5-flash-lite";
           } else {
-              currentModel = "gemini-3.1-pro-preview";
+              currentModel = "gemini-3.6-flash";
           }
           const waitTime = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
           await new Promise(resolve => setTimeout(resolve, waitTime));

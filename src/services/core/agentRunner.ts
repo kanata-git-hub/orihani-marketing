@@ -1,7 +1,7 @@
 import { getGeminiClient } from '../geminiClient';
 import { AgentLog, AgentResponse } from '../../types/agent';
 
-const MODEL_NAME = "gemini-3-flash-preview";
+const MODEL_NAME = "gemini-3.6-flash";
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -38,8 +38,8 @@ export const callAgent = async (
     ? fallbackModels 
     : [
         modelOverride || MODEL_NAME,
-        "gemini-3-flash-preview",
-        "gemini-3.1-pro-preview"
+        "gemini-3.6-flash",
+        "gemini-3.6-flash"
       ];
 
   let currentModelIndex = 0;
@@ -76,7 +76,7 @@ export const callAgent = async (
           currentModelIndex++;
           currentModel = modelChain[currentModelIndex];
         } else {
-          currentModel = "gemini-3-flash-preview"; // Ultimate Fallback if unknown model
+          currentModel = "gemini-3.6-flash"; // Ultimate Fallback if unknown model
         }
 
         console.warn(`[Model Fetch Failed] ${oldModel} failed. Escalating to ${currentModel} (attempt ${attempt}/${maxRetries})...`);

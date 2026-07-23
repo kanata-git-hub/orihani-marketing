@@ -14,6 +14,10 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
+    match /blog_history/{documentId} {
+      allow read, write: if request.auth != null;
+    }
+    
     // Add logic for user-owned content
     match /user_content/{documentId} {
       allow read, write: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid) || isAdmin();

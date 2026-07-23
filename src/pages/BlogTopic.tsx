@@ -68,8 +68,16 @@ export default function BlogTopic() {
 
   const handleApprove = () => {
     if (!result) return;
-    setSharedTopic(result.finalTopic);
-    setSharedTreatment(result.finalTreatment || '');
+    setSharedTopic(result.disease || '');
+    
+    let treatmentText = result.finalTopic || '';
+    if (result.treatments && result.treatments.length > 0) {
+      treatmentText += '\n추가 치료법: ' + result.treatments.join(', ');
+    } else if (result.finalTreatment) {
+      treatmentText += '\n추가 치료법: ' + result.finalTreatment;
+    }
+    
+    setSharedTreatment(treatmentText);
     setSharedFormat(result.format || '');
     if (result.disease) setSharedDisease(result.disease);
     if (result.target) setSharedTarget(result.target);
@@ -178,7 +186,7 @@ export default function BlogTopic() {
                 다시하기
               </button>
               <button
-                onClick={() => setGlobalActiveTab('blog')}
+                onClick={handleApprove}
                 className="px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 bg-[#ffcd4a] text-[#552c24] hover:bg-[#ffe180] shadow-md transition-all border border-[#e8dfd1]"
               >
                 <ArrowRight className="w-4 h-4" />
@@ -204,6 +212,14 @@ export default function BlogTopic() {
                 <div className="text-base font-bold text-[#552c24]">{result.situation}</div>
               </div>
               <div className="bg-white rounded-xl p-4 md:p-6 border border-[#e8dfd1] shadow-sm">
+                <div className="text-xs mb-1.5 uppercase tracking-wider font-bold text-[#d97706]">치료법 (해결책)</div>
+                <div className="text-base font-bold text-[#552c24]">
+                  {result.treatments && result.treatments.length > 0 
+                    ? result.treatments.join(', ') 
+                    : result.finalTreatment || '미정'}
+                </div>
+              </div>
+              <div className="bg-white rounded-xl p-4 md:p-6 border border-[#e8dfd1] shadow-sm md:col-span-2">
                 <div className="text-xs mb-1.5 uppercase tracking-wider font-bold text-[#d97706]">블로그 형식</div>
                 <div className="text-base font-bold text-[#552c24]">{result.format || '미정'}</div>
               </div>

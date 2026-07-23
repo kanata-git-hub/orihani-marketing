@@ -141,9 +141,9 @@ export const runMultiAgentSystem = async (
     const crawlerOutput = await callAgent(
       TOPIC_CRAWLER_PROMPT, 
       crawlerPrompt, 
-      "gemini-3.1-flash-lite", 
+      "gemini-3.5-flash-lite", 
       undefined, undefined, true, 5, 
-      ["gemini-3.1-flash-lite", "gemini-3.1-flash-lite"]
+      ["gemini-3.5-flash-lite", "gemini-3.5-flash-lite"]
     );
     crawlerRes = { role: "크롤러", content: crawlerOutput };
     
@@ -168,9 +168,9 @@ export const runMultiAgentSystem = async (
     const jsonOutput = await callAgent(
       TOPIC_JSON_PROCESSOR_PROMPT, 
       `수집된 원본 데이터:\n${crawlerOutput}`, 
-      "gemini-3.1-flash-lite", 
+      "gemini-3.5-flash-lite", 
       undefined, undefined, false, 5, 
-      ["gemini-3.1-flash-lite", "gemini-3.1-flash-lite"]
+      ["gemini-3.5-flash-lite", "gemini-3.5-flash-lite"]
     );
     jsonRes = { role: "가공자", content: jsonOutput };
     
@@ -196,9 +196,9 @@ export const runMultiAgentSystem = async (
     const plannerOutput = await callAgent(
       TOPIC_PLANNER_PROMPT, 
       plannerPrompt, 
-      "gemini-3.1-pro-preview", 
+      "gemini-3.6-flash", 
       undefined, undefined, false, 5, 
-      ["gemini-3.1-pro-preview", "gemini-3-flash-preview"]
+      ["gemini-3.6-flash", "gemini-3.6-flash"]
     );
     plannerRes = { role: "기획 작성자", content: plannerOutput };
     
@@ -224,9 +224,9 @@ export const runMultiAgentSystem = async (
     const reviewerOutput = await callAgent(
       TOPIC_REVIEWER_PROMPT, 
       reviewerPrompt, 
-      "gemini-3.1-pro-preview", 
+      "gemini-3.6-flash", 
       undefined, undefined, false, 5, 
-      ["gemini-3.1-pro-preview", "gemini-3-flash-preview"]
+      ["gemini-3.6-flash", "gemini-3.6-flash"]
     );
 
     try {

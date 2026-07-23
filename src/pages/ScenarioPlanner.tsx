@@ -76,7 +76,7 @@ Blog Content Extract: ${sharedBlogContent}
 Follow the system instructions to plan the visual scenario.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: 'gemini-3.6-flash',
         contents: prompt,
         config: {
           systemInstruction: SYSTEM_PROMPT
