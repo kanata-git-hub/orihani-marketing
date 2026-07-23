@@ -56,14 +56,6 @@ export default function ScenarioPlanner() {
 
     setIsGenerating(true);
     setError(null);
-
-    const apiKey = (process.env as any).API_KEY || (process.env as any).GEMINI_API_KEY;
-    if (!apiKey) {
-      setError("No API Key found.");
-      setIsGenerating(false);
-      return;
-    }
-
     const ai = getGeminiClient();
 
     try {
@@ -71,8 +63,10 @@ export default function ScenarioPlanner() {
 Title: ${sharedTitle}
 Insta Text: ${sharedInstaContent}
 Video Script: ${sharedScript.join('\n')}
-Blog Content Extract: ${sharedBlogContent}
+Blog Content Extract (including Image Suggestion):
+${sharedBlogContent}
 
+CRITICAL: You MUST base your Thumbnail Image Prompt and Video Scene 1 Prompt heavily on the \'[이미지 삽입 제안: ...]\' found at the top of the Blog Content Extract.
 Follow the system instructions to plan the visual scenario.`;
 
       const response = await ai.models.generateContent({
@@ -167,7 +161,7 @@ Follow the system instructions to plan the visual scenario.`;
           <div className="flex items-center gap-2">
             <button 
               onClick={handleGenerate}
-              disabled={isGenerating || !hasApiKey}
+              disabled={isGenerating || !sharedBlogContent}
               className="flex items-center justify-center gap-2 bg-[#552c24] text-[#ffcd4a] px-5 py-2 rounded-xl text-sm font-bold shadow-md hover:bg-[#3d1f19] transition-all disabled:opacity-50 min-w-[80px]"
             >
               {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}

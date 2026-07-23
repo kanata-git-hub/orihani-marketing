@@ -7,6 +7,79 @@ import { generateBlogPost, BlogGenerationResult, getTreatmentPrompt, getInfoProm
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
+const convertToBlogHtml = (text: string) => {
+  const cleanLines = (text || '').split('\n');
+  let inBlockquote = false;
+  let isFirstTextLine = true;
+  const htmlParts: string[] = [];
+
+  for (let i = 0; i < cleanLines.length; i++) {
+    let htmlLine = cleanLines[i].trim();
+
+    // 빈 줄은 여백으로 유지
+    if (!htmlLine) {
+      if (inBlockquote) {
+        htmlParts.push('</div>');
+        inBlockquote = false;
+      }
+      htmlParts.push('<p><br></p>');
+      continue;
+    }
+
+    // 첫 번째 줄은 대제목
+    if (isFirstTextLine) {
+      isFirstTextLine = false;
+      htmlLine = htmlLine.replace(/^(제목|소제목):\s*/, '').replace(/^#+\s*/, '');
+      htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '$1');
+      htmlParts.push(`<p><span style="font-size: 24pt; font-weight: bold; font-style: normal;">${htmlLine}</span></p>`);
+      continue;
+    }
+
+    // 제목이나 소제목, 마크다운 #, 또는 질문(Q) 로 시작하는 경우 소제목(인용구 4 스타일) 처리
+    if (/^(제목|소제목):\s*/.test(htmlLine) || htmlLine.startsWith('#') || /^[Q]\./i.test(htmlLine) || /^질문:/i.test(htmlLine)) {
+      if (inBlockquote) { htmlParts.push('</div>'); inBlockquote = false; }
+      htmlLine = htmlLine.replace(/^(제목|소제목):\s*/, '').replace(/^#+\s*/, '');
+      htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '$1');
+      // 네이버 블로그 인용구 4(상하단 선) 스타일을 시각적으로 구현 (기본 blockquote는 인용구 1로만 붙여넣기 됨)
+      htmlParts.push(`<div style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; padding: 20px 10px; margin: 30px 0;"><p><span style="font-size: 18pt; font-weight: bold; font-style: normal;">${htmlLine}</span></p></div>`);
+      continue;
+    }
+
+    // 3줄 요약 블록 시작
+    if (htmlLine.includes('3줄 요약')) {
+      if (inBlockquote) { htmlParts.push('</div>'); inBlockquote = false; }
+      inBlockquote = true;
+      htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '$1');
+      htmlParts.push(`<div style="border: 2px solid #e5e7eb; padding: 20px; background-color: #f9fafb; margin: 20px 0;"><p><span style="font-size: 14pt; font-weight: bold; font-style: normal;">${htmlLine}</span></p>`);
+      continue;
+    }
+
+    // 3줄 요약 블록 내부
+    if (inBlockquote) {
+      htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '$1');
+      htmlParts.push(`<p><span style="font-size: 11pt; font-weight: bold; font-style: normal;">${htmlLine}</span></p>`);
+      continue;
+    }
+
+    // 답변(A) 문구 볼드 처리
+    if (/^[A]\./i.test(htmlLine) || /^답변:/i.test(htmlLine)) {
+      if (!htmlLine.includes('**')) { 
+        htmlLine = `**${htmlLine}**`;
+      }
+    }
+
+    // 마크다운 볼드체(**)를 <b> 태그로 변환 (기존 로직 유지, LLM이 <b>를 주더라도 대응 가능하도록)
+    htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    htmlParts.push(`<p>${htmlLine}</p>`);
+  }
+
+  if (inBlockquote) {
+    htmlParts.push('</div>');
+  }
+
+  return htmlParts.join('\n');
+};
+
 interface HistoryItem {
   id: string;
   timestamp: number;
@@ -85,107 +158,27 @@ export default function BlogPost() {
       setSharedTitle(item.result.instaTitle || '');
       setSharedInstaContent(item.result.instaContent || '');
       setSharedScript(item.result.videoScript || []);
-      setSharedBlogContent(item.result.blog || '');
+      const combinedBlogContent = item.result.imageSuggestion ? `[이미지 삽입 제안: ${item.result.imageSuggestion}]\n\n${item.result.blog}` : (item.result.blog || ""); setSharedBlogContent(combinedBlogContent);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
   const handleCopyBlog = async (text: string, id: string) => {
-    const cleanLines =  (text || '').split('\n');
-
-    // HTML 태그로 변환 (네이버 블로그 복붙용)
-    let inBlockquote = false;
-    let isFirstTextLine = true;
-    const htmlParts: string[] = [];
-
-    for (let i = 0; i < cleanLines.length; i++) {
-      let htmlLine = cleanLines[i].trim();
-
-      // 빈 줄은 여백으로 유지
-      if (!htmlLine) {
-        if (inBlockquote) {
-          htmlParts.push('</div>');
-          inBlockquote = false;
-        }
-        htmlParts.push('<p><br></p>');
-        continue;
-      }
-
-      // 첫 번째 줄은 대제목
-      if (isFirstTextLine) {
-        isFirstTextLine = false;
-        htmlLine = htmlLine.replace(/^(제목|소제목):\s*/, '').replace(/^#+\s*/, '');
-        htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '$1');
-        htmlParts.push(`<p><span style="font-size: 24pt; font-weight: bold; font-style: normal;">${htmlLine}</span></p>`);
-        continue;
-      }
-
-      // 제목이나 소제목, 마크다운 #, 또는 질문(Q) 로 시작하는 경우 소제목(인용구 4 스타일) 처리
-      if (/^(제목|소제목):\s*/.test(htmlLine) || htmlLine.startsWith('#') || /^[Q]\./i.test(htmlLine) || /^질문:/i.test(htmlLine)) {
-        if (inBlockquote) { htmlParts.push('</div>'); inBlockquote = false; }
-        htmlLine = htmlLine.replace(/^(제목|소제목):\s*/, '').replace(/^#+\s*/, '');
-        htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '$1');
-        // 네이버 블로그 인용구 4(상하단 선) 스타일을 시각적으로 구현 (기본 blockquote는 인용구 1로만 붙여넣기 됨)
-        htmlParts.push(`<div style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; padding: 20px 10px; margin: 30px 0;"><p><span style="font-size: 18pt; font-weight: bold; font-style: normal;">${htmlLine}</span></p></div>`);
-        continue;
-      }
-
-      // 3줄 요약 블록 시작
-      if (htmlLine.includes('3줄 요약')) {
-        if (inBlockquote) { htmlParts.push('</div>'); inBlockquote = false; }
-        inBlockquote = true;
-        htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '$1');
-        htmlParts.push(`<div style="border: 2px solid #e5e7eb; padding: 20px; background-color: #f9fafb; margin: 20px 0;"><p><span style="font-size: 14pt; font-weight: bold; font-style: normal;">${htmlLine}</span></p>`);
-        continue;
-      }
-
-      // 3줄 요약 블록 내부
-      if (inBlockquote) {
-        htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '$1');
-        htmlParts.push(`<p><span style="font-size: 11pt; font-weight: bold; font-style: normal;">${htmlLine}</span></p>`);
-        continue;
-      }
-
-      // 답변(A) 문구 볼드 처리
-      if (/^[A]\./i.test(htmlLine) || /^답변:/i.test(htmlLine)) {
-        if (!htmlLine.includes('**')) {
-           htmlLine = `**${htmlLine}**`;
-        }
-      }
-
-      // 마크다운 볼드체(**)를 <b> 태그로 변환
-      htmlLine = htmlLine.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-
-      htmlParts.push(`<p>${htmlLine}</p>`);
-    }
-
-    if (inBlockquote) {
-      htmlParts.push('</div>');
-    }
-
-    const htmlText = htmlParts.join('\n');
-
-    const cleanPlainText = cleanLines.join('\n').replace(/\*\*/g, '');
+    const htmlText = convertToBlogHtml(text);
+    const cleanPlainText = (text || "").split("\n").join("\n").replace(/\*\*/g, "").replace(/<\/?b>/g, "");
 
     try {
-      const blobHtml = new Blob([htmlText], { type: 'text/html' });
-      const blobText = new Blob([cleanPlainText], { type: 'text/plain' });
+      const blobHtml = new Blob([htmlText], { type: "text/html" });
+      const blobText = new Blob([cleanPlainText], { type: "text/plain" });
       const data = [new ClipboardItem({
-        'text/html': blobHtml,
-        'text/plain': blobText
+        "text/html": blobHtml,
+        "text/plain": blobText
       })];
       await navigator.clipboard.write(data);
-      
       setCopied(id);
       setTimeout(() => setCopied(null), 2000);
     } catch (err) {
+      console.error('Failed to copy rich text:', err);
       navigator.clipboard.writeText(cleanPlainText);
       setCopied(id);
       setTimeout(() => setCopied(null), 2000);
@@ -468,75 +461,10 @@ export default function BlogPost() {
                       </button>
                     </div>
                     <div className="p-5 md:p-8 prose prose-sm max-w-none text-gray-800">
-                      <div className="whitespace-pre-wrap leading-relaxed font-medium">
-                        {result.blog}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Instagram Card */}
-                  <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="px-4 md:px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                      <div className="flex items-center gap-2">
-                        <Instagram className="w-4 h-4 text-pink-500" />
-                        <span className="text-sm font-bold uppercase tracking-wider text-gray-600">Instagram Thumbnail</span>
-                      </div>
-                      <button
-                        onClick={() => handleCopy(`${result.instaTitle}\n\n${result.instaContent}`, 'insta')}
-                        className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                      >
-                        {copied === 'insta' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-400" />}
-                      </button>
-                    </div>
-                    <div className="p-5 md:p-8 space-y-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] uppercase tracking-widest font-bold text-gray-400">Insta Title</label>
-                        <p className="text-xl font-bold text-pink-500">{result.instaTitle}</p>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] uppercase tracking-widest font-bold text-gray-400">Insta Content</label>
-                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                          <p className="whitespace-pre-wrap text-sm leading-relaxed font-medium text-gray-700">
-                            {result.instaContent}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Video Script Card */}
-                  <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="px-4 md:px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                      <div className="flex items-center gap-2">
-                        <Video className="w-4 h-4 text-purple-600" />
-                        <span className="text-sm font-bold uppercase tracking-wider text-gray-600">8-Second Video Script</span>
-                      </div>
-                      <button
-                        onClick={() => handleCopy(result.videoScript.join('\n'), 'video')}
-                        className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                      >
-                        {copied === 'video' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-400" />}
-                      </button>
-                    </div>
-                    <div className="p-5 md:p-8">
-                      <div className="grid grid-cols-1 gap-4">
-                        {result.videoScript.map((line, index) => (
-                          <div key={index} className="flex items-center gap-4 group">
-                            <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xs shrink-0">
-                              {index + 1}
-                            </div>
-                            <div className="flex-1 bg-gray-50 px-4 py-3 rounded-xl border border-gray-100 transition-all">
-                              <p className="text-sm font-medium text-gray-800">{line}</p>
-                            </div>
-                            <div className="text-[10px] font-mono text-gray-400 tabular-nums">
-                              {line.length}/13
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <p className="mt-6 text-[10px] text-center text-gray-400 uppercase tracking-widest font-bold">
-                        각 문장 2.6초 노출 권장
-                      </p>
+                      <div 
+                        className="whitespace-pre-wrap leading-relaxed font-medium blog-preview-content"
+                        dangerouslySetInnerHTML={{ __html: convertToBlogHtml(result.blog) }}
+                      />
                     </div>
                   </div>
 
@@ -563,28 +491,6 @@ export default function BlogPost() {
                       </div>
                     </div>
                   )}
-
-                  {/* Evaluation Trigger */}
-                  <div className="pt-8 border-t border-gray-200">
-                    <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 md:p-6 text-center">
-                      <h3 className="text-blue-900 font-bold mb-2">생성된 콘텐츠를 평가하고 싶으신가요?</h3>
-                      <p className="text-sm text-blue-700 mb-4">
-                        좌측 메뉴의 <strong>'콘텐츠 평가소'</strong> 탭으로 이동하여<br/>
-                        다중 에이전트(시장조사팀, 기획팀, 재무팀, CEO)의 종합 평가를 받아보세요.
-                      </p>
-                      <button
-                        onClick={() => {
-                          // App.tsx에서 탭을 변경하는 로직이 필요하지만, 
-                          // 여기서는 단순히 안내만 하거나, Context를 통해 탭 변경을 트리거할 수 있습니다.
-                          alert("좌측 메뉴에서 '콘텐츠 평가소' 탭을 클릭해주세요.");
-                        }}
-                        className="inline-flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm"
-                      >
-                        <LayoutDashboard className="w-4 h-4" />
-                        콘텐츠 평가소로 이동 안내
-                      </button>
-                    </div>
-                  </div>
                 </motion.div>
               ) : (
                 <div className="h-full min-h-[500px] flex flex-col items-center justify-center border-2 border-dashed border-gray-200 bg-white rounded-3xl p-12 text-center space-y-4">
