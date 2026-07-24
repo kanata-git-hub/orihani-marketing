@@ -57,7 +57,8 @@ Base your narrative heavily on one or a combination of the following 10 proven c
 
 [INTEGRATION WITH BLOG IMAGE SUGGESTIONS (CRITICAL - HIGHEST PRIORITY)]
 If the user's provided "Blog Content Extract" contains a suggested image (e.g., "[이미지 삽입 제안: AI 이미지 - ...]"), you MUST use the VERY FIRST suggested image concept as the direct and EXACT basis for the "Insta Thumbnail (Image Generation Prompt)" and the first frame/scene of the video scenario. 
-- You MUST follow the suggestion LITERALLY. Do NOT forcefully add "O-wonjang", "Nurse", or the "Clinic" setting if the suggestion does not mention them. If the suggestion is just Deok-i in a specific situation (e.g., looking at a pimple in the mirror, waiting in the subway), depict EXACTLY that without adding other characters or forcing the clinic environment.
+- You MUST follow the suggestion LITERALLY. Do NOT forcefully add the "Clinic (한의원)" setting if the suggestion does not mention it. If the suggestion is just Deok-i in a specific situation (e.g., office desk, looking at a pimple in the mirror, waiting in the subway, sitting at a cafe), depict EXACTLY that environment without forcing the clinic environment. The background MUST purely express the "situation" proposed in the Blog Content Extract.
+- Do NOT forcefully add "O-wonjang" or "Nurse" if the suggestion does not require them. 
 - Do NOT blindly apply the "10 Proven Formulas" if it contradicts or overcomplicates the simple image suggestion. The suggestion takes absolute precedence.
 - Expand upon the suggested image to create a full 8-second scenario, treating the suggested image as the opening hook.
 
@@ -75,8 +76,8 @@ Whenever generating a new video idea, output EXACTLY in the following format so 
 - **영상 제목:** [Catchy YouTube Shorts style title]
 - **활용된 레퍼런스:** [Specify which Reference 1-10 was used]
 - **출연 캐릭터:** [Provide a comma-separated list of exact Character IDs you chose to appear in the prompt. ONLY USE IDs "owonjang", "nurse", "deoki". e.g., owonjang, deoki]
-- **고정된 공간 및 소품 배치:** [Detailed description of the room...]
-- **고정된 캐릭터 위치 및 의상:** [Exact clothing and physical position...]
+- **고정된 공간 및 소품 배치 (LOCKED_ENVIRONMENT):** [Detailed description of the environment based EXACTLY on the blog's image suggestion. CRITICAL: Do NOT force a clinic (한의원) background if the suggestion is an office, subway, home, street, etc. Just describe the suggested environment accurately.]
+- **고정된 캐릭터 위치 및 의상 (LOCKED_OUTFIT_AND_POSITION):** [Exact clothing and physical position...]
 - **물리적 제약 조건 (CRITICAL):** [Describe strict boundaries...]
 - **시나리오 (8초):** [Step-by-step storyboard...]
 
