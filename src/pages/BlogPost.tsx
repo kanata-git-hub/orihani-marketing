@@ -192,7 +192,7 @@ export default function BlogPost() {
     setError(null);
     
     try {
-      const generatedResult = await generateBlogPost(mode, topic, treatment);
+      const generatedResult = await generateBlogPost(mode, topic, treatment, sharedSituation || "");
       
       setResult(generatedResult);
       setSharedTitle(generatedResult.instaTitle);
