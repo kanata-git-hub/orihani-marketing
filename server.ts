@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, GenerateVideosOperation } from "@google/genai";
 
 dotenv.config({ override: true });
 
@@ -69,7 +69,12 @@ async function startServer() {
         throw new Error("GEMINI_API_KEY is missing.");
       }
       const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.operations.getVideosOperation(req.body);
+      
+      const operationName = req.body.operation?.name || req.body.name;
+      const op = new GenerateVideosOperation();
+      op.name = operationName;
+      
+      const response = await ai.operations.getVideosOperation({ operation: op });
       return res.json(response);
     } catch (error: any) {
       console.error("Error calling getVideosOperation:", error);
