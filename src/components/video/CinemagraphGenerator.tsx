@@ -320,12 +320,18 @@ ${videoPrompt}`;
 
       const downloadLink = completedOp.response?.generatedVideos?.[0]?.video?.uri;
       if (downloadLink) {
-        const response = await fetch(downloadLink, {
-          method: 'GET',
+        const response = await fetch('/api/downloadVideo', {
+          method: 'POST',
           headers: {
-            'x-goog-api-key': generationKey,
+            'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ uri: downloadLink })
         });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch video through proxy.');
+        }
+        
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         setVideoUrl(url);
