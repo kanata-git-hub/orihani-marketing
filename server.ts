@@ -82,6 +82,43 @@ async function startServer() {
     }
   });
 
+  // Proxy to download the actual video file
+  app.post("/api/downloadVideo", async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("GEMINI_API_KEY is missing.");
+      }
+      const { uri } = req.body;
+      if (!uri) {
+        throw new Error("Video URI is missing.");
+      }
+      
+      const response = await fetch(uri, {
+        method: 'GET',
+        headers: {
+          'x-goog-api-key': apiKey,
+        },
+      });
+      
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Failed to fetch video from Google: ${errText}`);
+      }
+      
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      res.setHeader('Content-Type', 'video/mp4');
+      res.setHeader('Content-Length', buffer.length);
+      return res.send(buffer);
+      
+    } catch (error: any) {
+      console.error("Error downloading video:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     try {
