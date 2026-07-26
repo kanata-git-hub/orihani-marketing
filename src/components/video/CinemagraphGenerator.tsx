@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Image as ImageIcon,  Play, Loader2, AlertCircle, CheckCircle2, RefreshCw, Sparkles, Download, Type, FileText, Trash2, History, X } from 'lucide-react';
+import { Upload, Image as ImageIcon,  Play, Loader2, AlertCircle, CheckCircle2, RefreshCw, Sparkles, Download, Type, FileText, Trash2, History, X, Copy, Check } from 'lucide-react';
 import { VideoHistoryItem, saveVideoToDB } from '../../hooks/useVideoHistory';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GeminiService } from '../../services/video/geminiService';
@@ -47,6 +47,19 @@ interface CinemagraphGeneratorProps {
 
 export const CinemagraphGenerator = React.forwardRef<any, CinemagraphGeneratorProps>(({ state, setState, history, setHistory }, ref) => {
   const [innerTab, setInnerTab] = useState<'영상설정' | '레퍼런스' | '프롬프트' | '히스토리'>('프롬프트');
+  const [copiedClip, setCopiedClip] = useState<number | null>(null);
+
+  const getClipPrompts = (text: string) => {
+    const prompts: string[] = [];
+    const prompt1Match = text.match(/Prompt 1:\s*([\s\S]*?)(?=🎬 CLIP 2|Prompt 2|$)/i);
+    if (prompt1Match) prompts.push(prompt1Match[1].trim());
+    
+    const prompt2Match = text.match(/Prompt 2:\s*([\s\S]*)/i);
+    if (prompt2Match) prompts.push(prompt2Match[1].trim());
+    
+    return prompts;
+  };
+
   const {
     diseaseName,
     situationDescription,
@@ -251,13 +264,7 @@ export const CinemagraphGenerator = React.forwardRef<any, CinemagraphGeneratorPr
     setProgress(20);
 
     try {
-      const selectedKey = (process.env as any).API_KEY;
-      const defaultKey = (process.env as any).GEMINI_API_KEY;
-      
-      const generationKey = selectedKey || defaultKey;
-      if (!generationKey) {
-        throw new Error('API key for video generation is missing.');
-      }
+      const generationKey = (import.meta.env.VITE_GEMINI_API_KEY as string) || 'dummy';
       
       const generationGemini = new GeminiService(generationKey);
       const actualModel = duration === '12s' ? 'veo-3.1-generate-preview' : model;
@@ -683,13 +690,42 @@ ${videoPrompt}`;
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">프롬프트 (AI 자동 생성)</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider">프롬프트 (AI 자동 생성)</label>
+                </div>
                 <textarea
                   value={videoPrompt || ''}
                   onChange={(e) => setState(prev => ({ ...prev, videoPrompt: e.target.value }))}
                   className="w-full h-40 bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-sm text-zinc-700 resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all custom-scrollbar"
                   placeholder="Generating optimized video prompt..."
                 />
+                {videoPrompt && getClipPrompts(videoPrompt).length > 0 && (
+                  <div className="mt-3 flex gap-2">
+                    {getClipPrompts(videoPrompt).map((prompt, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          navigator.clipboard.writeText(prompt);
+                          setCopiedClip(idx);
+                          setTimeout(() => setCopiedClip(null), 2000);
+                        }}
+                        className="flex-1 py-2 px-3 bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
+                      >
+                        {copiedClip === idx ? (
+                          <>
+                            <Check className="w-4 h-4 text-green-500" />
+                            <span className="text-sm font-medium text-green-600">복사 완료</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm font-medium text-gray-600">클립 {idx + 1} 복사</span>
+                          </>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
