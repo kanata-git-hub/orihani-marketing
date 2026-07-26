@@ -47,6 +47,36 @@ async function startServer() {
     }
   });
 
+  app.post("/api/generateVideos", async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("GEMINI_API_KEY is missing.");
+      }
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateVideos(req.body);
+      return res.json(response);
+    } catch (error: any) {
+      console.error("Error calling generateVideos:", error);
+      res.status(error.status || 500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/getVideosOperation", async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("GEMINI_API_KEY is missing.");
+      }
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.operations.getVideosOperation(req.body);
+      return res.json(response);
+    } catch (error: any) {
+      console.error("Error calling getVideosOperation:", error);
+      res.status(error.status || 500).json({ error: error.message });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     try {
