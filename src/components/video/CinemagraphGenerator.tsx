@@ -307,9 +307,6 @@ export const CinemagraphGenerator = React.forwardRef<any, CinemagraphGeneratorPr
       
       const generationGemini = new GeminiService(generationKey);
       let actualModel = duration === '12s' ? 'veo-3.1-generate-preview' : model;
-      if (lastFrameImage) {
-        actualModel = 'veo-3.1-generate-preview';
-      }
 
       let finalVideoPrompt = videoPrompt;
       if (selectedCharacterIds && selectedCharacterIds?.length > 0 && !lastFrameImage) {
@@ -704,7 +701,7 @@ ${videoPrompt}`;
                   {isAutoLoadingRefs && <Loader2 className="w-3 h-3 text-emerald-500 animate-spin" />}
                 </div>
                 {lastFrameImage && (
-                  <p className="text-xs text-amber-500 mb-2">※ 마지막 프레임이 설정된 경우 캐릭터 레퍼런스는 적용되지 않으며, 고품질(Pro) 모델로 자동 전환됩니다.</p>
+                  <p className="text-xs text-amber-500 mb-2">※ 마지막 프레임이 설정된 경우 캐릭터 레퍼런스는 적용되지 않습니다.</p>
                 )}
                 
                 {/* @ts-ignore */}
