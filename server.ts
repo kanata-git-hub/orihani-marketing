@@ -89,9 +89,16 @@ async function startServer() {
       if (!apiKey) {
         throw new Error("GEMINI_API_KEY is missing.");
       }
-      const { uri } = req.body;
+      let { uri } = req.body;
       if (!uri) {
         throw new Error("Video URI is missing.");
+      }
+      
+      // Ensure we download the media bytes instead of the JSON metadata
+      if (uri.includes('googleapis.com') && !uri.includes('alt=media')) {
+        const u = new URL(uri);
+        u.searchParams.append('alt', 'media');
+        uri = u.toString();
       }
       
       const response = await fetch(uri, {
