@@ -8,7 +8,7 @@ import { usePipeline } from '../../context/PipelineContext';
 import { useApiKey } from '../../hooks/useApiKey';
 import { downloadFile } from '../../utils/downloadUtils';
 import { CHARACTERS } from '../../constants';
-import { compressImage } from '../../utils/canvasUtils';
+import { compressImage } from '../../utils/imageUtils';
 
 declare global {
   interface Window {
@@ -147,7 +147,14 @@ export const CinemagraphGenerator = React.forwardRef<any, CinemagraphGeneratorPr
                   reader.onloadend = () => resolve(reader.result as string);
                   reader.readAsDataURL(blob);
                 });
-                newRefs.push(dataUrl);
+                
+                try {
+                  const { compressImage } = await import('../../utils/imageUtils');
+                  const compressed = await compressImage(dataUrl, 1280, 1280, 0.85); // refs don't need to be huge
+                  newRefs.push(compressed);
+                } catch (e) {
+                  newRefs.push(dataUrl);
+                }
               }
             } catch (e) {
               console.warn("Failed to load char image", e);
@@ -169,39 +176,69 @@ export const CinemagraphGenerator = React.forwardRef<any, CinemagraphGeneratorPr
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastFrameInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (image?.preview) {
         URL.revokeObjectURL(image.preview);
       }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = (reader.result as string).split(',')[1];
-        setImage({
-          b64: base64String,
-          mime: file.type,
-          preview: URL.createObjectURL(file),
-        });
+      reader.onloadend = async () => {
+        const dataUrl = reader.result as string;
+        try {
+          const { compressImage } = await import('../../utils/imageUtils');
+          const compressedDataUrl = await compressImage(dataUrl, 1920, 1920, 0.85);
+          const base64String = compressedDataUrl.split(',')[1];
+          const mime = compressedDataUrl.match(/^data:(image\/[a-zA-Z0-9.-]+);base64,/)?.[1] || file.type;
+          
+          setImage({
+            b64: base64String,
+            mime: mime,
+            preview: URL.createObjectURL(file), // original file preview
+          });
+        } catch (err) {
+          console.error("Compression failed", err);
+          const base64String = dataUrl.split(',')[1];
+          setImage({
+            b64: base64String,
+            mime: file.type,
+            preview: URL.createObjectURL(file),
+          });
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleLastFrameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLastFrameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (lastFrameImage?.preview) {
         URL.revokeObjectURL(lastFrameImage.preview);
       }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = (reader.result as string).split(',')[1];
-        setLastFrameImage({
-          b64: base64String,
-          mime: file.type,
-          preview: URL.createObjectURL(file),
-        });
+      reader.onloadend = async () => {
+        const dataUrl = reader.result as string;
+        try {
+          const { compressImage } = await import('../../utils/imageUtils');
+          const compressedDataUrl = await compressImage(dataUrl, 1920, 1920, 0.85);
+          const base64String = compressedDataUrl.split(',')[1];
+          const mime = compressedDataUrl.match(/^data:(image\/[a-zA-Z0-9.-]+);base64,/)?.[1] || file.type;
+          
+          setLastFrameImage({
+            b64: base64String,
+            mime: mime,
+            preview: URL.createObjectURL(file),
+          });
+        } catch (err) {
+          console.error("Compression failed", err);
+          const base64String = dataUrl.split(',')[1];
+          setLastFrameImage({
+            b64: base64String,
+            mime: file.type,
+            preview: URL.createObjectURL(file),
+          });
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -373,7 +410,7 @@ ${videoPrompt}`;
 
   const handleDownload = () => {
     if (!videoUrl) return;
-    downloadFile(videoUrl, `cinemagraph-${diseaseName.toLowerCase().replace(/\s+/g, '-')}.mp4`);
+    downloadFile(videoUrl, `cinemagraph-${(diseaseName || 'untitled').toLowerCase().replace(/\s+/g, '-')}.mp4`);
   };
 
   const downloadRefImage = () => {
@@ -685,15 +722,22 @@ ${videoPrompt}`;
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">주제</label>
-                <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-700 min-h-[44px]">
-                  {diseaseName || <span className="text-gray-400 italic">No topic...</span>}
-                </div>
+                <input
+                  type="text"
+                  value={diseaseName || ''}
+                  onChange={(e) => setState(prev => ({ ...prev, diseaseName: e.target.value }))}
+                  className="w-full p-3 bg-white rounded-xl border border-gray-200 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all"
+                  placeholder="No topic..."
+                />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">상황 묘사</label>
-                <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-700 min-h-[60px] whitespace-pre-wrap">
-                  {situationDescription || <span className="text-gray-400 italic">No situation description...</span>}
-                </div>
+                <textarea
+                  value={situationDescription || ''}
+                  onChange={(e) => setState(prev => ({ ...prev, situationDescription: e.target.value }))}
+                  className="w-full p-3 bg-white rounded-xl border border-gray-200 text-sm text-gray-700 min-h-[60px] resize-none focus:outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all"
+                  placeholder="No situation description..."
+                />
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
