@@ -6,6 +6,9 @@ export interface BlogGenerationResult {
   instaTitle: string;
   instaContent: string;
   videoScript: string[];
+  youtubeTtsScript: string;
+  youtubeTitle: string;
+  youtubeHashtags: string;
   sources?: { uri: string; title: string }[];
 }
 
@@ -85,6 +88,22 @@ export const getTreatmentPrompt = (topic: string, treatment: string, situation: 
      근본적인 순환 체계를
      바로잡는 것이 핵심입니다.
 5. 8초 영상 자막 출력: 반드시 [Part 3: 8-Second Video Script] 섹션을 포함하여 딱 2문장을 출력하세요.
+6. 유튜브 TTS 대본 출력: 반드시 [Part 4: YouTube TTS Script] 섹션을 포함하여 유튜브 영상에 들어갈 대본을 작성하세요.
+   - 분량: 반드시 공백 포함 300자 이내.
+   - 지역색 배제: 대구, 신천동 등 지역명 절대 배제 (전국구 타겟).
+   - 4단계 구조화 필수: [공감 (Hook)] (고통스러운 증상 묘사), [전문적 진단 (Insight)] (직관적 비유로 원인 설명), [치료 메커니즘 (Solution)] (치료 원리), [치료 효과 (Effect)] (긍정적인 변화 시각적 묘사).
+   - 톤앤매너: 전문적이고 확신에 찬 어조, 환자를 다독이는 따뜻함.
+7. 유튜브 메타데이터 출력: 반드시 [Part 5: YouTube Metadata] 섹션을 포함하여 영상 제목과 해시태그를 작성하세요.
+   - 영상 제목: 지역색 배제.
+   - 해시태그: 5개 (#대구한의원, #오리한의원, #질병이름 반드시 포함).
+6. 유튜브 TTS 대본 출력: 반드시 [Part 4: YouTube TTS Script] 섹션을 포함하여 유튜브 영상에 들어갈 대본을 작성하세요.
+   - 분량: 반드시 공백 포함 300자 이내.
+   - 지역색 배제: 대구, 신천동 등 지역명 절대 배제 (전국구 타겟).
+   - 4단계 구조화 필수: [공감 (Hook)] (고통스러운 증상 묘사), [전문적 진단 (Insight)] (직관적 비유로 원인 설명), [치료 메커니즘 (Solution)] (치료 원리), [치료 효과 (Effect)] (긍정적인 변화 시각적 묘사).
+   - 톤앤매너: 전문적이고 확신에 찬 어조, 환자를 다독이는 따뜻함.
+7. 유튜브 메타데이터 출력: 반드시 [Part 5: YouTube Metadata] 섹션을 포함하여 영상 제목과 해시태그를 작성하세요.
+   - 영상 제목: 지역색 배제.
+   - 해시태그: 5개 (#대구한의원, #오리한의원, #질병이름 반드시 포함).
    [자막 문장력 및 스타일 규칙 (CRITICAL)]
    1. 숏폼 특화 서사: 구구절절한 문장을 쓰지 마세요. 짧고 강렬한 핵심 상황, 캐릭터의 감정, 공감 가는 하이라이트 위주로 작성하세요.
       - (좋은 예: "모니터로 들어갈 뻔", "거북목 압수", "원장님한테 딱 걸림", "편-안")
@@ -162,6 +181,12 @@ Insta Content: (딱 3줄의 간결한 티저 문구)
 Video Script:
 1. (15자 이내)
 2. (15자 이내)
+[Part 4: YouTube TTS Script]
+(TTS 대본 300자 이내)
+[Part 5: YouTube Metadata]
+YouTube Title: (제목)
+YouTube Hashtags: (해시태그 5개)
+
 
 ${UTM_LINK_INSTRUCTION}`;
 
@@ -245,6 +270,12 @@ Insta Content: (딱 3줄의 간결한 티저 문구)
 Video Script:
 1. (15자 이내)
 2. (15자 이내)
+[Part 4: YouTube TTS Script]
+(TTS 대본 300자 이내)
+[Part 5: YouTube Metadata]
+YouTube Title: (제목)
+YouTube Hashtags: (해시태그 5개)
+
 
 ${UTM_LINK_INSTRUCTION}`;
 
@@ -324,6 +355,12 @@ Insta Content: (딱 3줄의 간결한 티저 문구)
 Video Script:
 1. (15자 이내)
 2. (15자 이내)
+[Part 4: YouTube TTS Script]
+(TTS 대본 300자 이내)
+[Part 5: YouTube Metadata]
+YouTube Title: (제목)
+YouTube Hashtags: (해시태그 5개)
+
 
 ${UTM_LINK_INSTRUCTION}`;
 
@@ -393,7 +430,10 @@ export async function generateBlogPost(
   const blogMatch = text.match(/\[Part 1: Naver Blog Post\]\n([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 2:|$)/);
   const instaTitleMatch = text.match(/Insta Title:\s*(.*)/);
   const instaContentMatch = text.match(/Insta Content:\s*([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 3:|$)/);
-  const videoScriptMatch = text.match(/Video Script:\n([\s\S]*?)$/);
+  const videoScriptMatch = text.match(/Video Script:\n([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 4:|$)/);
+  const youtubeTtsScriptMatch = text.match(/\[Part 4: YouTube TTS Script\]\n([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 5:|$)/);
+  const youtubeTitleMatch = text.match(/YouTube Title:\s*(.*)/);
+  const youtubeHashtagsMatch = text.match(/YouTube Hashtags:\s*(.*)/);
 
   const imageSuggestion = imageSuggestionMatch ? imageSuggestionMatch[1].trim() : '';
   const blog = blogMatch ? blogMatch[1].trim() : text;
@@ -403,6 +443,10 @@ export async function generateBlogPost(
   // Clean up any leaked markdown separators at the end of instaContent
   instaContent = instaContent.replace(/(?:\n|^)(?:---|###)[\s\S]*$/, '').trim();
   
+  const youtubeTtsScript = youtubeTtsScriptMatch ? youtubeTtsScriptMatch[1].trim() : '';
+  const youtubeTitle = youtubeTitleMatch ? youtubeTitleMatch[1].trim() : '';
+  const youtubeHashtags = youtubeHashtagsMatch ? youtubeHashtagsMatch[1].trim() : '';
+
   let videoScript: string[] = [];
   if (videoScriptMatch) {
     videoScript = videoScriptMatch[1]
@@ -421,5 +465,5 @@ export async function generateBlogPost(
       }));
   }
 
-  return { blog, instaTitle, instaContent, videoScript, sources, imageSuggestion };
+  return { blog, instaTitle, instaContent, videoScript, youtubeTtsScript, youtubeTitle, youtubeHashtags, sources, imageSuggestion };
 }
