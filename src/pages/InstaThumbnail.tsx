@@ -63,8 +63,8 @@ export default function InstaThumbnail() {
   const [title, setTitle] = useState('');
   const [secondImageText, setSecondImageText] = useState('오리한의원과 함께하는\n건강한 다이어트');
   const [selectedModel, setSelectedModel] = useState<ImageModel>('gemini-3.1-flash-image');
-  const [selectedSize, setSelectedSize] = useState<ImageSize>('1K');
-  const [selectedRatio, setSelectedRatio] = useState<AspectRatio>('1:1');
+  const [selectedSize, setSelectedSize] = useState<ImageSize>('2K');
+  const [selectedRatio, setSelectedRatio] = useState<AspectRatio>('9:16');
   const [referenceImages, setReferenceImages] = useState<RefImage[]>([]);
   const [logoImage, setLogoImage] = useState<string | null>(null);
   const [isAutoLoadingRefs, setIsAutoLoadingRefs] = useState(false);
