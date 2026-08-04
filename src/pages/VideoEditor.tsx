@@ -56,10 +56,10 @@ export default function VideoEditor() {
     status: 'idle',
     error: null,
     progress: 0,
-    aspectRatio: '16:9',
+    aspectRatio: '9:16',
     model: 'veo-3.1-fast-generate-preview',
     duration: '8s',
-    resolution: '720p',
+    resolution: '1080p',
   });
 
   // Load history on mount and when a new video is completed
@@ -157,7 +157,7 @@ export default function VideoEditor() {
             </button>
             <button
               onClick={() => {
-                const text = `제목: ${latestBlogContent.result.youtubeTitle}\n\n해시태그: ${latestBlogContent.result.youtubeHashtags}`;
+                const text = `${latestBlogContent.result.youtubeTitle}\n\n${latestBlogContent.result.youtubeHashtags}`;
                 navigator.clipboard.writeText(text);
                 setCopiedTitle(true);
                 setTimeout(() => setCopiedTitle(false), 2000);
