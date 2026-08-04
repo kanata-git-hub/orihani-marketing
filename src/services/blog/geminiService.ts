@@ -185,7 +185,7 @@ Video Script:
 (TTS 대본 300자 이내)
 [Part 5: YouTube Metadata]
 YouTube Title: (제목)
-YouTube Hashtags: (해시태그 5개)
+YouTube Hashtags: (해시태그 5개. 단, #오리한의원, #대구는 반드시 포함하고, 1개는 질병명, 나머지 2개는 해당 영상과 관련된 인기 검색어 주제어로 구성할 것)
 
 
 ${UTM_LINK_INSTRUCTION}`;
@@ -274,7 +274,7 @@ Video Script:
 (TTS 대본 300자 이내)
 [Part 5: YouTube Metadata]
 YouTube Title: (제목)
-YouTube Hashtags: (해시태그 5개)
+YouTube Hashtags: (해시태그 5개. 단, #오리한의원, #대구는 반드시 포함하고, 1개는 질병명, 나머지 2개는 해당 영상과 관련된 인기 검색어 주제어로 구성할 것)
 
 
 ${UTM_LINK_INSTRUCTION}`;
@@ -359,7 +359,7 @@ Video Script:
 (TTS 대본 300자 이내)
 [Part 5: YouTube Metadata]
 YouTube Title: (제목)
-YouTube Hashtags: (해시태그 5개)
+YouTube Hashtags: (해시태그 5개. 단, #오리한의원, #대구는 반드시 포함하고, 1개는 질병명, 나머지 2개는 해당 영상과 관련된 인기 검색어 주제어로 구성할 것)
 
 
 ${UTM_LINK_INSTRUCTION}`;
