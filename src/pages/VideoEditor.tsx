@@ -157,7 +157,9 @@ export default function VideoEditor() {
             </button>
             <button
               onClick={() => {
-                const text = `${latestBlogContent.result.youtubeTitle}\n\n${latestBlogContent.result.youtubeHashtags}`;
+                const cleanTitle = (latestBlogContent.result.youtubeTitle || '').replace(/^제목\s*:\s*/, '');
+                const cleanHashtags = (latestBlogContent.result.youtubeHashtags || '').replace(/^해시태그\s*:\s*/, '');
+                const text = `${cleanTitle}\n\n${cleanHashtags}`;
                 navigator.clipboard.writeText(text);
                 setCopiedTitle(true);
                 setTimeout(() => setCopiedTitle(false), 2000);
