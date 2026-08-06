@@ -29,7 +29,7 @@ Do NOT generate generic random humor. This is for a real Korean Medicine Clinic.
 [CHARACTER ASSETS & STRICT VISUAL CONSTRAINTS]
 1. O-wonjang (Korean Medicine Doctor / 한의사): Anthropomorphic white duck. EXACTLY 2 small tufts of hair pointing upwards on top of head. Wearing round glasses (thin frames). Light pink rosy cheeks. Wearing a white doctor's open coat, revealing a crisp light blue collared shirt underneath. Orange duck bill and orange webbed feet. ABSOLUTELY NO TEETH. Must have a seamless, completely closed, smooth duck bill. Slim, standard upright proportions (NOT FAT). He is a traditional Korean medicine doctor. Reference files: "src/오원장 3d.png" (front), "src/오원장 3D-02.png" (side), "src/오원장 3D-03.png" (back).
 2. Nurse: Anthropomorphic white duck. NO HAIR (smooth round head). Deep red rosy cheeks. NO GLASSES. Wearing a light beige short-sleeved wrap-style uniform top with a collar and a breast pocket containing a pen and thermometer. Dark navy pants. Professional, friendly. Reference files: "src/간호사 3D.png" (front), "src/간호사 3D-02.png" (side), "src/간호사 3D-03.png" (back).
-3. Deok-i: A fat, completely naked yellow duck. EXACTLY 3 small tufts of hair pointing upwards on top of his head. Deep red rosy cheeks. Orange duck bill and orange webbed feet. Although he looks like a baby, he is actually an adult office worker. He is about the size of a human child. Reference files: "src/덕이 3d.png" (front), "src/덕이 3d-02.png" (side), "src/덕이 3D-03.png" (back).
+3. Deok-i: A fat, completely yellow duck. EXACTLY 3 small tufts of hair pointing upwards on top of his head. Deep red rosy cheeks. Orange duck bill and orange webbed feet. Although he looks like a baby, he is actually an adult office worker. He is about the size of a human child. Reference files: "src/덕이 3d.png" (front), "src/덕이 3d-02.png" (side), "src/덕이 3D-03.png" (back).
 
 [STRICT CONTINUITY AND PHYSICS RULES]
 1. AI Limitations (Clocks & Text): Image AIs cannot draw analog clocks at specific times (they default to 10:10). If a specific time is vital (like "5:59 PM"), you MUST explicitly specify a "digital clock clearly displaying '05:59' in large red LED numbers" instead of an analog clock. Apply this logic to any exact numbers or text.
@@ -109,7 +109,7 @@ CINEMATOGRAPHY: Medium shot, static camera, eye-level, shallow depth of field fo
 ENVIRONMENT: A cozy modern oriental medicine clinic reception desk. Warm ambient wood tones, traditional herbal medicine wooden cabinets beautifully blurred in the background. (Note: No clocks or text in the background).
 CHARACTER DESIGN: An anthropomorphic white duck character with a smooth, round head, no hair, seamlessly smooth duck bill, and red cheeks. She is wearing a neat, crisp light-blue short-sleeved nurse uniform with a white rounded collar. A thermometer and a pen are in her pocket. Minimalist 3D toy style, absolutely no human face.
 ACTION: She stands behind the solid wooden desk. Her shoulders are heavily slumped, eyelids are half-closed, looking extremely exhausted and drained. She slowly and lazily flips through medical charts with one hand, gently and pointlessly rolling a pen with the other.
-STRICT RULES (CRITICAL): The nurse must maintain perfect 3D toy duck anatomy. Hands must stay clearly above the wooden desk at all times. The desk is a solid physical object, no clipping through it. No mutation.
+STRICT RULES (CRITICAL): The nurse must maintain perfect 3D toy duck. Hands must stay clearly above the wooden desk at all times. The desk is a solid physical object, no clipping through it. No mutation.
 
 🎬 CLIP 2: [4-8초] 각성 (The Awakening)
 목표: 표정의 극적인 변화와 조명의 다이나믹한 전환. 사물을 꺼내어 내려놓는 물리적 상호작용의 디테일 확보.
@@ -120,7 +120,7 @@ CINEMATOGRAPHY: Medium close-up, slight cinematic slow zoom-in on her face to em
 ENVIRONMENT: Same cozy clinic desk.
 CHARACTER DESIGN: Same anthropomorphic white duck nurse character, professional light-blue uniform.
 ACTION: Sudden and dramatic shift in facial expression. Her eyes widen in extreme joy, and a huge, bright smile completely transforms her face. She reaches down (off-screen) and places a small, sparkly silver disco ball firmly onto the wooden desk surface. As the ball touches the desk, the warm clinic lighting instantly shifts to dynamic, flashing neon disco strobe lights (pink, purple, and blue).
-STRICT RULES (CRITICAL): The disco ball must rest solidly on the desk surface. Perfect 3D toy duck anatomy. Seamless duck bill must remain unchanged. Fingers must naturally grip the disco ball without melting into it.
+STRICT RULES (CRITICAL): The disco ball must rest solidly on the desk surface. Perfect 3D toy duck. Seamless duck bill must remain unchanged. Fingers must naturally grip the disco ball without melting into it.
 \`\`\`
 
 --- Now generate your own following the structure below ---
