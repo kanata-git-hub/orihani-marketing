@@ -42,15 +42,15 @@ async function fetchNetworkTime(onProgress?: (log: AgentLog) => void): Promise<D
 }
 
 async function fetchRecentHistory(currentDate: Date): Promise<{ text: string, data: any[] }> {
-  let recentHistoryText = "최근 3개월 발행 내역 없음.";
+  let recentHistoryText = "최근 1개월 발행 내역 없음.";
   let recentHistoryData: any[] = [];
   try {
-    const threeMonthsAgo = new Date(currentDate);
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-    const threeMonthsAgoIso = threeMonthsAgo.toISOString();
+    const oneMonthAgo = new Date(currentDate);
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    const oneMonthAgoIso = oneMonthAgo.toISOString();
 
     const historyRef = collection(db, 'blog_history');
-    const q = query(historyRef, where('publishDate', '>=', threeMonthsAgoIso));
+    const q = query(historyRef, where('publishDate', '>=', oneMonthAgoIso));
     const querySnapshot = await getDocs(q);
     
     if (!querySnapshot.empty) {
@@ -66,15 +66,12 @@ async function fetchRecentHistory(currentDate: Date): Promise<{ text: string, da
 }
 
 function checkDuplicatePlan(parsedReviewer: any, recentHistoryData: any[]): boolean {
-  if (!(parsedReviewer.score >= 90 && parsedReviewer.target && parsedReviewer.situation && parsedReviewer.treatments && parsedReviewer.disease)) {
+  if (!(parsedReviewer.score >= 90 && parsedReviewer.disease)) {
     return false;
   }
   for (const history of recentHistoryData) {
-    if (history.disease === parsedReviewer.disease && history.target === parsedReviewer.target && history.situation === parsedReviewer.situation) {
-      const hasOverlap = parsedReviewer.treatments?.some((t: string) => history.treatments.includes(t));
-      if (hasOverlap) {
-        return true;
-      }
+    if (history.disease === parsedReviewer.disease) {
+      return true;
     }
   }
   return false;
@@ -111,7 +108,7 @@ export const runMultiAgentSystem = async (
     id: Date.now().toString() + Math.random(),
     timestamp: Date.now(),
     agentName: 'System',
-    message: `[오늘의 집중 기획 대분류]: ${randomCategory}\n\n[최근 3개월 발행 이력]\n${recentHistoryText}`,
+    message: `[오늘의 집중 기획 대분류]: ${randomCategory}\n\n[최근 1개월 발행 이력]\n${recentHistoryText}`,
     type: 'success'
   });
 
@@ -192,7 +189,7 @@ export const runMultiAgentSystem = async (
       type: 'working'
     });
     
-    const plannerPrompt = `[최근 3개월 기획 내역 (중복 절대 금지)]\n${recentHistoryText}\n\n[타겟 질환 카테고리]: ${randomCategory}\n\n[가공된 리서치 데이터]\n${jsonOutput}\n\n${reviewerFeedbackHistory}`;
+    const plannerPrompt = `[최근 1개월 기획 내역 (중복 절대 금지)]\n${recentHistoryText}\n\n[타겟 질환 카테고리]: ${randomCategory}\n\n[가공된 리서치 데이터]\n${jsonOutput}\n\n${reviewerFeedbackHistory}`;
     const plannerOutput = await callAgent(
       TOPIC_PLANNER_PROMPT, 
       plannerPrompt, 
@@ -253,10 +250,10 @@ export const runMultiAgentSystem = async (
         id: Date.now().toString() + Math.random(),
         timestamp: Date.now(),
         agentName: 'System',
-        message: `[중복 기획 감지] 질환/부위(${parsedReviewer.disease}), 타겟(${parsedReviewer.target}), 상황(${parsedReviewer.situation}), 치료법(${parsedReviewer.treatments?.join(', ')}) 조합이 최근 3개월 내에 이미 발행되었습니다. 기획을 반려하고 다시 시작합니다.`,
+        message: `[중복 기획 감지] 질환/부위(${parsedReviewer.disease})가 최근 1개월 내에 이미 발행되었습니다. 기획을 반려하고 다시 시작합니다.`,
         type: 'error'
       });
-      reviewerFeedbackHistory += `\n\n[자동 중복 반려 사유]: 질환/부위(${parsedReviewer.disease}), 타겟(${parsedReviewer.target}), 상황(${parsedReviewer.situation}), 치료법(${parsedReviewer.treatments?.join(', ')})은 이미 포스팅했습니다. 완전히 다른 질환/타겟 조합으로 다시 시도하세요.`;
+      reviewerFeedbackHistory += `\n\n[자동 중복 반려 사유]: 질환/부위(${parsedReviewer.disease})은(는) 최근 1개월 내에 이미 포스팅했습니다. 완전히 다른 질환으로 다시 시도하세요.`;
       continue;
     }
 
