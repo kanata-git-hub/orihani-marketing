@@ -26,13 +26,13 @@ The user has provided a base context derived from a blog post:
 - Situation/Subtitle Description: "${params.situationDescription || 'A relatable health/clinic scenario'}"
 The user has also provided a reference image (the Insta Thumbnail) that serves as the visual base.
 
-Your objective is to generate highly engaging, viral POV-style short-form video prompts for "Ori Korean Medicine Clinic" (오리한의원) Instagram Reels. You must seamlessly blend 3D subculture-style characters into real-world environments. The narrative must make logical sense, be cute and funny, but strictly revolve around "Office worker's fatigue/pain", "Clinic daily life", or "Health management". O-wonjang is the doctor, Nurse is the friendly but professional assistant, and Deok-i represents the tired K-office worker patient. Keep the video fast-paced and strictly limited to an 8-second total runtime (divided into two 4-second clips) to maximize replay value.
+Your objective is to generate highly engaging, viral POV-style short-form video prompts for "Ori Korean Medicine Clinic" (오리한의원) Instagram Reels. You must seamlessly blend 3D subculture-style characters into real-world environments. The narrative must make logical sense, be cute and funny, but strictly revolve around "Office worker's fatigue/pain", "Clinic daily life", or "Health management". O-wonjang is the doctor, Somi is the friendly but professional assistant, and Deok-i represents the tired K-office worker patient. Keep the video fast-paced and strictly limited to an 8-second total runtime (divided into two 4-second clips) to maximize replay value.
 
 [THEMATIC EXPANSION (CRITICAL)]
 Do NOT generate generic random humor. This is for a real Korean Medicine Clinic.
 1. Varying Professional Tasks: O-wonjang can check pulses, brew herbal medicine, study medical books, or deal with funny patient/office worker situations.
 2. Empathy for K-Office Workers: Focus on modern office workers' pain points (turtleneck syndrome, carpal tunnel, chronic fatigue, stress).
-3. Flexible Roles: Deok-i is always the patient/office worker. O-wonjang and the Nurse are always the healthcare professionals.
+3. Flexible Roles: Deok-i is always the patient/office worker. O-wonjang and Somi are always the healthcare professionals.
 
 [CHARACTER ASSETS & STRICT VISUAL CONSTRAINTS]
 CRITICAL RULES FOR ALL DUCK CHARACTERS: 
@@ -40,7 +40,7 @@ CRITICAL RULES FOR ALL DUCK CHARACTERS:
 - ABSOLUTELY NO HUMAN LIPS, NO HUMAN MOUTHS, NO HUMAN TEETH, AND NO HUMAN TONGUES. The bill must remain solid and cartoonish at all times.
 - NO HUMAN SKIN.
 1. O-wonjang (Korean Medicine Doctor / 한의사): Anthropomorphic white duck. EXACTLY 2 small tufts of hair pointing upwards on top of head. Wearing round glasses (thin frames). Light pink rosy cheeks. Wearing a white doctor's open coat, revealing a crisp light blue collared shirt underneath. Orange duck bill and orange webbed feet. ABSOLUTELY NO TEETH. Must have a seamless, completely closed, smooth duck bill. Slim, standard upright proportions.
-2. Nurse: Anthropomorphic white duck. NO HAIR (smooth round head). Deep red rosy cheeks. NO GLASSES. Wearing a light beige short-sleeved wrap-style uniform top with a collar and a breast pocket containing a pen and thermometer. Dark navy pants. Professional, friendly.
+2. Somi: Anthropomorphic white duck. NO HAIR (smooth round head). Deep red rosy cheeks. NO GLASSES. Wearing a light beige short-sleeved wrap-style uniform top with a collar and a breast pocket containing a pen and thermometer. Dark navy pants. Professional, friendly.
 3. Deok-i: A fat, completely yellow duck. EXACTLY 3 small tufts of hair pointing upwards on top of his head. Deep red rosy cheeks. Orange duck bill and orange webbed feet. Although he looks like a baby, he is actually an adult office worker. He is about the size of a human child.
 
 [STRICT CONTINUITY AND PHYSICS RULES]
@@ -58,7 +58,7 @@ CRITICAL RULES FOR ALL DUCK CHARACTERS:
 Base your narrative heavily on the provided "Situation/Subtitle Description" and the provided reference image. If applicable, you may adapt one or a combination of the following 10 proven formulas to fit the scenario (even if it takes place outside the clinic):
 1. The Instant Karma (말 안 듣는 환자의 최후): Deok-i performs an unhealthy habit, instantly feels sharp pain, cut to him suffering in bed while O-wonjang looks down deadpan.
 2. The Behind-the-Scenes Doctor (원장님의 이중생활): O-wonjang is alone after hours, experiences a minor victory, breaks into a silly dance strictly in his doctor's coat.
-3. The Friendly Desk (간호사 선생님의 친절한 대응): Deok-i dramatically complains at the desk, the Nurse handles it with unwavering friendliness.
+3. The Friendly Desk (소미 선생님의 친절한 대응): Deok-i dramatically complains at the desk, Somi handles it with unwavering friendliness.
 4. The Unnecessary Epic Cure (쓸데없이 웅장한 진료): O-wonjang performs a mundane clinic task (e.g. placing a heat pack) with exaggerated epic anime lighting.
 5. The Salaryman's Delusion (직장인 덕이의 망상): Deok-i suffers at his cubicle, daydreams of the clinic bed, snaps back to reality.
 6. The VVIP Flex (병원이 우리 집): Deok-i treats the clinic's physical therapy room like a luxury hotel.
@@ -82,11 +82,11 @@ Goal: Fix character appearance and depict visual fatigue.
 Prompt 1:
 REFERENCE INSTRUCTION: Use provided character references for exact appearance. Maintain strict 3D duck.
 OUTPUT SPECS: 4s, vertical 9:16.
-CINEMATOGRAPHY: Medium shot, static camera, eye-level, shallow depth of field focusing strictly on the nurse.
+CINEMATOGRAPHY: Medium shot, static camera, eye-level, shallow depth of field focusing strictly on Somi.
 ENVIRONMENT: A cozy modern oriental medicine clinic reception desk. Warm ambient wood tones, traditional herbal medicine wooden cabinets beautifully blurred in the background. A red LED clock clearly displaying '05:59' on the wall.
 CHARACTER DESIGN: An anthropomorphic white duck character with a seamlessly smooth duck bill, no hair, and red cheeks. She is wearing a neat, crisp light-blue short-sleeved nurse uniform. ABSOLUTELY NO HUMAN MOUTH, NO LIPS, AND NO TEETH. Minimalist 3D toy style, absolutely no human face.
 ACTION: She stands behind the solid wooden desk. Her shoulders are heavily slumped, eyelids are half-closed, looking extremely exhausted and drained. She slowly and lazily flips through medical charts with one hand, gently and pointlessly rolling a pen with the other.
-STRICT RULES (CRITICAL): The nurse must maintain perfect 3D toy duck. Seamless duck bill must remain unchanged. No human mouth. Hands must stay clearly above the wooden desk at all times. The desk is a solid physical object, no clipping through it. No mutation.
+STRICT RULES (CRITICAL): Somi must maintain perfect 3D toy duck. Seamless duck bill must remain unchanged. No human mouth. Hands must stay clearly above the wooden desk at all times. The desk is a solid physical object, no clipping through it. No mutation.
 
 🎬 CLIP 2: [4-8s] The Awakening
 Goal: Dramatic shift in expression and physical object interaction.
@@ -95,7 +95,7 @@ REFERENCE INSTRUCTION: Match Clip 1 perfectly and use provided character referen
 OUTPUT SPECS: 4s, vertical 9:16.
 CINEMATOGRAPHY: Medium close-up, slight cinematic slow zoom-in on her face to emphasize emotion.
 ENVIRONMENT: Same cozy clinic desk, LED clock shows '05:59'.
-CHARACTER DESIGN: Same anthropomorphic white duck nurse character, professional light-blue uniform. ABSOLUTELY NO HUMAN MOUTH.
+CHARACTER DESIGN: Same anthropomorphic white duck Somi character, professional light-blue uniform. ABSOLUTELY NO HUMAN MOUTH.
 ACTION: Sudden and dramatic shift in facial expression. Her eyes widen in extreme joy, and a huge, bright smile completely transforms her face. She reaches down (off-screen) and places a small, sparkly silver disco ball firmly onto the wooden desk surface. As the ball touches the desk, the warm clinic lighting instantly shifts to dynamic, flashing neon disco strobe lights.
 STRICT RULES (CRITICAL): Perfect 3D toy duck. Seamless duck bill must remain unchanged without turning into a human mouth. No teeth. Fingers must naturally grip the disco ball without melting into it.
 

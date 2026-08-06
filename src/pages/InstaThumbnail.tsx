@@ -110,7 +110,7 @@ export default function InstaThumbnail() {
     } else if (sharedImagePrompt) {
       const text = sharedImagePrompt.toLowerCase();
       if (text.includes('o-wonjang') || text.includes('owonjang') || text.includes('오원장')) charIdsToLoad.push('owonjang');
-      if (text.includes('nurse') || text.includes('간호사')) charIdsToLoad.push('nurse');
+      if (text.includes('somi') || text.includes('간호사') || text.includes('소미')) charIdsToLoad.push('somi');
       if (text.includes('deok-i') || text.includes('deoki') || text.includes('덕이')) charIdsToLoad.push('deoki');
     }
 
