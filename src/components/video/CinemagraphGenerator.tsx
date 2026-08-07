@@ -51,11 +51,31 @@ export const CinemagraphGenerator = React.forwardRef<any, CinemagraphGeneratorPr
 
   const getClipPrompts = (text: string) => {
     const prompts: string[] = [];
-    const prompt1Match = text.match(/Prompt 1:\s*([\s\S]*?)(?=🎬 CLIP 2|Prompt 2|$)/i);
-    if (prompt1Match) prompts.push(prompt1Match[1].trim());
     
-    const prompt2Match = text.match(/Prompt 2:\s*([\s\S]*)/i);
-    if (prompt2Match) prompts.push(prompt2Match[1].trim());
+    const extractSections = (clipNum: number, clipText: string) => {
+      const outputSpecs = clipText.match(/OUTPUT SPECS:\s*([^\n]+)/i)?.[0];
+      const cinematography = clipText.match(/CINEMATOGRAPHY:\s*([^\n]+)/i)?.[0];
+      const environment = clipText.match(/ENVIRONMENT:\s*([^\n]+)/i)?.[0];
+      const action = clipText.match(/ACTION:\s*([\s\S]*?)(?=STRICT RULES|🎬|$)/i)?.[0];
+      
+      const parts = [`[Clip ${clipNum}]`];
+      if (outputSpecs) parts.push(outputSpecs.trim());
+      if (cinematography) parts.push(cinematography.trim());
+      if (environment) parts.push(environment.trim());
+      if (action) parts.push(action.trim());
+      
+      return parts.join('\n\n');
+    };
+
+    const clip1Match = text.match(/🎬 CLIP 1:[\s\S]*?(?=🎬 CLIP 2|$)/i);
+    if (clip1Match) {
+      prompts.push(extractSections(1, clip1Match[0]));
+    }
+    
+    const clip2Match = text.match(/🎬 CLIP 2:[\s\S]*?(?=🎬 CLIP 3|$)/i);
+    if (clip2Match) {
+      prompts.push(extractSections(2, clip2Match[0]));
+    }
     
     return prompts;
   };
