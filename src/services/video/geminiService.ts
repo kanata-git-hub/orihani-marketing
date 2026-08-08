@@ -33,6 +33,7 @@ Do NOT generate generic random humor. This is for a real Korean Medicine Clinic.
 1. Varying Professional Tasks: O-wonjang can check pulses, brew herbal medicine, study medical books, or deal with funny patient/office worker situations.
 2. Empathy for K-Office Workers: Focus on modern office workers' pain points (turtleneck syndrome, carpal tunnel, chronic fatigue, stress).
 3. Flexible Roles: Deok-i is always the patient/office worker. O-wonjang and Somi are always the healthcare professionals.
+4. Trendy & Relatable Metaphors (CRITICAL): Do NOT use old pop culture references or unrealistic examples (e.g., 'Tetsujin 28-go', 80s/90s cartoons). Use sophisticated and trendy metaphors that the 2030 generation can easily empathize with and understand (e.g., modern daily life of an office worker).
 
 [CHARACTER ASSETS & STRICT VISUAL CONSTRAINTS]
 CRITICAL RULES FOR ALL DUCK CHARACTERS: 

@@ -44,7 +44,7 @@ export const TOPIC_REVIEWER_PROMPT = `당신은 오리한의원의 총괄 "검�
   "finalTopic": "최종 선정 블로그 주제",
   "finalTreatment": "치료 방법 및 처방 내용",
   "format": "치료형, 정보형, 인터뷰형 중 하나",
-  "disease": "구체적인 단일 질환명 또는 부위 (예: 생리통, 다낭성 난소증후군, 허리디스크 등. 대분류 금지)",
+  "disease": "구체적인 단일 질환명, 부위 또는 건강상식 소재 (예: 생리통, 다낭성 난소증후군, 허리디스크, 카페인 부작용 등. 대분류 금지)",
   "target": "타겟",
   "situation": "상황",
   "treatments": ["한약", "침"]

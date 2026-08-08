@@ -297,7 +297,7 @@ Blend of Pixar and anime inspiration, 3D cartoon rendering style. Glossy lightin
 
 [ENVIRONMENT & ACTION]
 Environment: Create a warm, cozy atmosphere with wooden elements. If in a clinic, use Oriental Medicine Clinic aesthetics (wooden medicine cabinets, warm lighting).
-Action: The character must be the central focus, executing the action described in "${title}" and reflecting the mood of "${secondImageText}". Focus on office worker fatigue, pain, or Oriental Medicine treatments (acupuncture, cupping, chuna, etc.). Give them a highly expressive, relatable facial expression.`;
+Action: The character must be the central focus, executing the action described in "${title}" and reflecting the mood of "${secondImageText}". Focus on office worker fatigue, pain, or Oriental Medicine treatments (acupuncture, cupping, chuna, etc.). Give them a highly expressive, relatable facial expression. Do NOT use old pop culture references or unrealistic examples (e.g., 'Tetsujin 28-go'). Use sophisticated and trendy metaphors that the 2030 generation can easily empathize with and understand.`;
         promptsToGenerate = [basePrompt];
       }
 

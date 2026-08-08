@@ -92,7 +92,8 @@ export const runMultiAgentSystem = async (
     '여성질환 (갱년기, 월경불순, 다낭성 난소증후군, 난임, 생리통 등)', 
     '피부질환 (여드름, 아토피, 다한증 등)',
     '다이어트 및 비만 관리',
-    '교통사고 후유증 및 재활'
+    '교통사고 후유증 및 재활',
+    '건강상식 (수면, 식습관, 스트레스 관리, 면역력 등)'
   ];
   const randomCategory = previousCategory || categories[Math.floor(Math.random() * categories.length)];
 
@@ -134,7 +135,7 @@ export const runMultiAgentSystem = async (
       type: 'working'
     });
     
-    const crawlerPrompt = `기준일: ${today}\n대분류: ${randomCategory}\n\n위 대분류 내에서 단일 질환을 하나만 뾰족하게 선정하고 관련 키워드와 트렌드를 마구 수집하세요.\n\n${reviewerFeedbackHistory}`;
+    const crawlerPrompt = `기준일: ${today}\n대분류: ${randomCategory}\n\n위 대분류 내에서 단일 질환 또는 구체적인 건강상식 소재를 하나만 뾰족하게 선정하고 관련 키워드와 트렌드를 마구 수집하세요.\n\n${reviewerFeedbackHistory}`;
     const crawlerOutput = await callAgent(
       TOPIC_CRAWLER_PROMPT, 
       crawlerPrompt, 
@@ -250,10 +251,10 @@ export const runMultiAgentSystem = async (
         id: Date.now().toString() + Math.random(),
         timestamp: Date.now(),
         agentName: 'System',
-        message: `[중복 기획 감지] 질환/부위(${parsedReviewer.disease})가 최근 1개월 내에 이미 발행되었습니다. 기획을 반려하고 다시 시작합니다.`,
+        message: `[중복 기획 감지] 질환/부위/소재(${parsedReviewer.disease})가 최근 1개월 내에 이미 발행되었습니다. 기획을 반려하고 다시 시작합니다.`,
         type: 'error'
       });
-      reviewerFeedbackHistory += `\n\n[자동 중복 반려 사유]: 질환/부위(${parsedReviewer.disease})은(는) 최근 1개월 내에 이미 포스팅했습니다. 완전히 다른 질환으로 다시 시도하세요.`;
+      reviewerFeedbackHistory += `\n\n[자동 중복 반려 사유]: 질환/부위/소재(${parsedReviewer.disease})은(는) 최근 1개월 내에 이미 포스팅했습니다. 완전히 다른 질환이나 건강상식 소재로 다시 시도하세요.`;
       continue;
     }
 

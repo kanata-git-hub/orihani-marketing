@@ -342,7 +342,7 @@ You MUST perfectly match their 3D toy-style appearance, facial proportions, and 
 Specific character rules:
 - O-wonjang: Anthropomorphic white duck with a large round head. EXACTLY 2 small tufts of hair pointing upwards on top. Wearing round brown-framed glasses with small black oval eyes inside. Light pink rosy cheeks. Solid orange smooth duck bill and orange webbed feet. Wearing a white doctor's open coat over a crisp light blue collared shirt. Slim standard duck proportions, absolutely no human face, no human lips, no teeth, minimalist 3D plastic toy style.
 - Nurse: Anthropomorphic white duck with a COMPLETELY SMOOTH round head (NO HAIR). Small black dot eyes, deep red rosy cheeks, NO GLASSES. Solid orange smooth duck bill and orange webbed feet. Wearing a light beige short-sleeved wrap-style top with a breast pocket (pen and thermometer inside) and dark navy pants. Minimalist 3D plastic toy style, absolutely no human face, no human lips, no teeth.
-- Deok-i: Fat, completely naked yellow duck with a large round head. EXACTLY 3 small tufts of hair pointing upwards on top. Small black dot eyes, deep red rosy cheeks. Solid orange smooth duck bill and orange webbed feet. About the size of a human child. Minimalist 3D plastic toy style, absolutely no human face, no human lips, no teeth.
+- Deok-i: Fat, completely yellow duck with a large round head. EXACTLY 3 small tufts of hair pointing upwards on top. Small black dot eyes, deep red rosy cheeks. Solid orange smooth duck bill and orange webbed feet. About the size of a human child. Minimalist 3D plastic toy style, absolutely no human face, no human lips, no teeth.
 
 Follow the actions described below, but NEVER break this character consistency rule.
 
