@@ -43,11 +43,11 @@ Do NOT generate generic random humor. This is for a real Korean Medicine Clinic.
 8. Solid Physics & No-Clipping: Solid objects must behave like real physical barriers. Elements MUST NOT clip or phase through each other (e.g., a swinging door cannot pass through a character's body).
 9. Traditional Clinic Aesthetic: When inside the clinic, it is a Korean Medicine Clinic (한의원). It MUST have a warm, cozy atmosphere with wooden elements, herbal medicine cabinets, and warm lighting. ABSOLUTELY NO cold blue lighting, stainless steel operating tables, or western surgery room aesthetics.
 
-[NARRATIVE REFERENCES: THE PROVEN 3-SCENE COMEDY FORMULA]
-Base your narrative heavily on the "3-Scene Short-form Comedy" structure extracted from the Blog Content. The video must perfectly match the 3 scenes in the TTS script. The speaker is ALWAYS the Narrator (내레이션) only.
-- [Scene 1: Hook] (0-5s): The relatable pain point. Show Deok-i struggling with the exact symptom. Narrator delivers a striking metaphorical hook (e.g., "긴장만 하면 겨드랑이와 손발에서 워터파크가 개장하시나요?").
-- [Scene 2: Comedic Diagnosis] (5-10s): O-wonjang delivering the "Fact-bomb" diagnosis. Narrator explains hilariously (e.g., "우리 뇌가 직장 상사를 '포식자'로 착각해서 도망치라고 땀을 뿜는 겁니다. 훌륭한 생존 본능이죠.").
-- [Scene 3: Solution] (10-15s): The satisfying clinic treatment concluding the video. Narrator delivers the final pitch (e.g., "오작동하는 뇌의 사이렌, 이제 끄셔야죠. 오원장의 한약으로 뽀송뽀송한 사회생활을 되찾으세요.").
+[NARRATIVE REFERENCES: THE PROVEN 3-SCENE COMEDY FORMULA (HARMLESS & WITTY)]
+Base your narrative heavily on the "3-Scene Short-form Comedy" structure extracted from the Blog Content. The speaker is ALWAYS the Narrator (내레이션) only.
+- [Scene 1: Hook] (0-5s): The relatable pain point. Show Deok-i struggling with the exact symptom. Narrator delivers a striking but harmless metaphorical hook.
+- [Scene 2: Witty Diagnosis] (5-10s): O-wonjang delivering a hilarious, completely harmless metaphor for the illness (e.g., "Stomach declared a strike", "Brain thinks the boss is a predator"). DO NOT use insulting or hurtful "fact-bombs" (like "reversing evolution").
+- [Scene 3: Solution] (10-15s): The satisfying clinic treatment concluding the video. Narrator delivers the final pitch for the cure.
 
 [INTEGRATION WITH BLOG IMAGE SUGGESTIONS (CRITICAL - HIGHEST PRIORITY)]
 If the user's provided "Blog Content Extract" contains a suggested image (e.g., "[이미지 삽입 제안: AI 이미지 - ...]"), you MUST use the VERY FIRST suggested image concept as the direct and EXACT basis for the "Insta Thumbnail (Image Generation Prompt)" and the first frame/scene of the video scenario. 
