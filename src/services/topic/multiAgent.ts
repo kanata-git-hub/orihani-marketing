@@ -143,6 +143,7 @@ export const runMultiAgentSystem = async (
       undefined, undefined, true, 5, 
       ["gemini-3.5-flash-lite", "gemini-3.5-flash-lite"]
     );
+    if (crawlerOutput.startsWith("오류 발생:")) throw new Error(crawlerOutput);
     crawlerRes = { role: "크롤러", content: crawlerOutput };
     
     onProgress({
@@ -170,6 +171,7 @@ export const runMultiAgentSystem = async (
       undefined, undefined, false, 5, 
       ["gemini-3.5-flash-lite", "gemini-3.5-flash-lite"]
     );
+    if (jsonOutput.startsWith("오류 발생:")) throw new Error(jsonOutput);
     jsonRes = { role: "가공자", content: jsonOutput };
     
     onProgress({
@@ -198,6 +200,7 @@ export const runMultiAgentSystem = async (
       undefined, undefined, false, 5, 
       ["gemini-3.6-flash", "gemini-3.6-flash"]
     );
+    if (plannerOutput.startsWith("오류 발생:")) throw new Error(plannerOutput);
     plannerRes = { role: "기획 작성자", content: plannerOutput };
     
     onProgress({
@@ -227,8 +230,22 @@ export const runMultiAgentSystem = async (
       ["gemini-3.6-flash", "gemini-3.6-flash"]
     );
 
+    if (reviewerOutput.startsWith("오류 발생:")) {
+      throw new Error(reviewerOutput);
+    }
+
     try {
-      parsedReviewer = JSON.parse(reviewerOutput.replace(/```json\n?|\n?```/g, "").trim());
+      let jsonString = reviewerOutput;
+      const jsonMatch = reviewerOutput.match(/```(?:json)?\n?([\s\S]*?)\n?```/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[1];
+      } else {
+        const bracketMatch = reviewerOutput.match(/\{[\s\S]*\}/);
+        if (bracketMatch) {
+          jsonString = bracketMatch[0];
+        }
+      }
+      parsedReviewer = JSON.parse(jsonString.trim());
     } catch(e) {
       parsedReviewer = { 
         content: reviewerOutput, 
