@@ -1,4 +1,10 @@
-import data1 from "../../data/data1.md?raw";
+const fs = require('fs');
+let content = fs.readFileSync('src/services/blog/geminiService.ts', 'utf8');
+
+// The file has three prompt functions: getTreatmentPrompt, getInfoPrompt, getInterviewPrompt.
+// We will replace the entire file content up to `const delay = ...` with our new version that has the consistent structure.
+
+const newFunctions = `import data1 from "../../data/data1.md?raw";
 import data2 from "../../data/data2.md?raw";
 import data3 from "../../data/data3.md?raw";
 
@@ -16,7 +22,7 @@ export interface BlogGenerationResult {
   sources?: { uri: string; title: string }[];
 }
 
-const UTM_LINK_INSTRUCTION = `
+const UTM_LINK_INSTRUCTION = \`
 [예약 링크 삽입 규칙 (필수)]
 블로그 글(Part 1)의 마지막 (면책 조항 바로 앞)에 반드시 네이버 예약 링크를 삽입하세요.
 현재 작성 중인 글이 다음 7가지 [기획 주제 카테고리] 중 어디에 해당하는지 스스로 판단하여, 정확히 매칭되는 링크(URL)를 삽입해야 합니다.
@@ -45,9 +51,9 @@ const UTM_LINK_INSTRUCTION = `
 
 [출력 포맷 예시]
 지긋지긋한 증상, 더 이상 참지 마시고 오리한의원에서 정확한 진단과 적절한 치료를 받아보세요!
-[👉 오리한의원 네이버 예약 바로가기] (해당하는 카테고리의 URL)`;
+[👉 오리한의원 네이버 예약 바로가기] (해당하는 카테고리의 URL)\`;
 
-export const getTreatmentPrompt = (topic: string, treatment: string, situation: string) => `당신은 대구 동구 동대구로 445(신천동) '오리한의원(https://blog.naver.com/orihani)'의 블로그 포스팅을 작성하는 수석 마케팅 전략가이자 전문 의료 작가입니다. 
+export const getTreatmentPrompt = (topic: string, treatment: string, situation: string) => \`당신은 대구 동구 동대구로 445(신천동) '오리한의원(https://blog.naver.com/orihani)'의 블로그 포스팅을 작성하는 수석 마케팅 전략가이자 전문 의료 작가입니다. 
 한의학 지식이 없는 20~60대 일반인이 읽었을 때, 오리한의원의 전문성과 따뜻한 공감으로 '내 증상을 깊이 이해하고 도움을 받을 수 있겠다'는 신뢰감을 형성할 수 있도록 작성해주세요. 단, 의료법 준수를 위해 치료 효과를 단정 짓거나 과장된 표현은 엄격히 금지합니다.
 
 [필수 준수 사항]
@@ -89,9 +95,9 @@ export const getTreatmentPrompt = (topic: string, treatment: string, situation: 
 13. 이미지 삽입 제안: 썸네일로 사용할 시각적 이해를 돕거나 분위기를 환기할 수 있는 대표 AI 이미지 1장을 별도의 [Part 0: Image Suggestion] 섹션에만 제안하세요.
 
 [사용자 입력]
-1. 글 주제(소재): ${topic}
-2. 다루고 싶은 팁/주의사항: ${treatment}
-3. 질환이 발생하는 상황: ${situation}
+1. 글 주제(소재): \${topic}
+2. 다루고 싶은 팁/주의사항: \${treatment}
+3. 질환이 발생하는 상황: \${situation}
 
 [작성 구조]
 - 제목: [메인 검색 키워드] + [환자의 구체적 페인포인트/상황/관심사] + [명확한 핵심 정보/해결책] (대괄호 말머리 금지)
@@ -145,19 +151,19 @@ Video Script:
 YouTube Title: (영상 내용의 핵심 증상, 비유, 또는 약재의 효능을 강조하여 시청자의 흥미를 유발하는 매력적인 제목)
 YouTube Hashtags: (해시태그 5개. 단, #오리한의원, #대구는 반드시 포함하고, 1개는 질병명, 나머지 2개는 해당 영상과 관련된 인기 검색어 주제어로 구성할 것)
 
-${UTM_LINK_INSTRUCTION}
+\${UTM_LINK_INSTRUCTION}
 
 [배경지식: 처방 및 약재 지식, 한약 소개]
 (참고: data1, data2는 처방의 구성과 약재와 처방의 지식, data3는 전반적 지식과 특정 병에 사용하는 한약에 대한 소개입니다.)
 === data1 ===
-${data1}
+\${data1}
 === data2 ===
-${data2}
+\${data2}
 === data3 ===
-${data3}
-`;
+\${data3}
+\`;
 
-export const getInfoPrompt = (topic: string, treatment: string, situation: string) => `당신은 대구 동구 동대구로 445(신천동) '오리한의원(https://blog.naver.com/orihani)'의 블로그 포스팅을 작성하는 수석 마케팅 전략가이자 전문 의료 작가입니다.
+export const getInfoPrompt = (topic: string, treatment: string, situation: string) => \`당신은 대구 동구 동대구로 445(신천동) '오리한의원(https://blog.naver.com/orihani)'의 블로그 포스팅을 작성하는 수석 마케팅 전략가이자 전문 의료 작가입니다.
 일상적인 소재(생활습관, 계절별 건강관리, 운동, 음식, 유행 등)를 건강한 삶의 관점에서 풀어내어, 독자들에게 유익한 정보를 제공하고 한의원의 친근한 이미지를 구축하는 것이 목표입니다.
 최신 트렌드나 특정 인물의 다이어트법 등이 주제일 경우, 구글 검색을 활용하여 정확한 정보를 바탕으로 작성하세요.
 
@@ -191,9 +197,9 @@ export const getInfoPrompt = (topic: string, treatment: string, situation: strin
 12. 이미지 삽입 제안: 썸네일로 사용할 시각적 이해를 돕거나 분위기를 환기할 수 있는 대표 AI 이미지 1장을 별도의 [Part 0: Image Suggestion] 섹션에만 제안하세요.
 
 [사용자 입력]
-1. 글 주제(소재): ${topic}
-2. 다루고 싶은 팁/주의사항: ${treatment}
-3. 질환이 발생하는 상황: ${situation}
+1. 글 주제(소재): \${topic}
+2. 다루고 싶은 팁/주의사항: \${treatment}
+3. 질환이 발생하는 상황: \${situation}
 
 [작성 구조]
 - 제목: [메인 검색 키워드] + [환자의 구체적 페인포인트/상황/관심사] + [명확한 핵심 정보/해결책] (대괄호 말머리 금지)
@@ -247,19 +253,19 @@ Video Script:
 YouTube Title: (영상 내용의 핵심 증상, 비유, 또는 약재의 효능을 강조하여 시청자의 흥미를 유발하는 매력적인 제목)
 YouTube Hashtags: (해시태그 5개. 단, #오리한의원, #대구는 반드시 포함하고, 1개는 질병명, 나머지 2개는 해당 영상과 관련된 인기 검색어 주제어로 구성할 것)
 
-${UTM_LINK_INSTRUCTION}
+\${UTM_LINK_INSTRUCTION}
 
 [배경지식: 처방 및 약재 지식, 한약 소개]
 (참고: data1, data2는 처방의 구성과 약재와 처방의 지식, data3는 전반적 지식과 특정 병에 사용하는 한약에 대한 소개입니다.)
 === data1 ===
-${data1}
+\${data1}
 === data2 ===
-${data2}
+\${data2}
 === data3 ===
-${data3}
-`;
+\${data3}
+\`;
 
-export const getInterviewPrompt = (topic: string, treatment: string, situation: string) => `당신은 대구 동구 동대구로 445(신천동) '오리한의원(https://blog.naver.com/orihani)'의 블로그 포스팅을 작성하는 수석 마케팅 전략가이자 전문 의료 작가입니다.
+export const getInterviewPrompt = (topic: string, treatment: string, situation: string) => \`당신은 대구 동구 동대구로 445(신천동) '오리한의원(https://blog.naver.com/orihani)'의 블로그 포스팅을 작성하는 수석 마케팅 전략가이자 전문 의료 작가입니다.
 이번 포스팅은 오리한의원의 '손영남 원장님'이 환자들이 평소 자주 하는 질문이나 궁금증들에 대해 직접 답해주는 Q&A(인터뷰) 형식의 칼럼으로 작성해야 합니다. 
 제3자인 기자가 인터뷰하는 딱딱한 언론사 기사 형식이 절대 아닙니다! 원장님이 직접 블로그 독자(환자)들에게 친근한 구어체로 이야기를 건네며 궁금증을 속 시원히 풀어주는 '블로그 Q&A 칼럼' 형식입니다.
 
@@ -291,9 +297,9 @@ export const getInterviewPrompt = (topic: string, treatment: string, situation: 
 12. 이미지 삽입 제안: 썸네일로 사용할 시각적 이해를 돕거나 분위기를 환기할 수 있는 대표 AI 이미지 1장을 별도의 [Part 0: Image Suggestion] 섹션에만 제안하세요.
 
 [사용자 입력]
-1. 인터뷰 주제(소재): ${topic}
-2. 다루고 싶은 핵심 내용: ${treatment}
-3. 질환이 발생하는 상황: ${situation}
+1. 인터뷰 주제(소재): \${topic}
+2. 다루고 싶은 핵심 내용: \${treatment}
+3. 질환이 발생하는 상황: \${situation}
 
 [작성 구조]
 - 제목: [메인 검색 키워드] + [환자의 구체적 페인포인트/상황에 대한 질문] + [원장님의 명확한 답변/해결책] (대괄호 말머리 금지)
@@ -348,118 +354,19 @@ Video Script:
 YouTube Title: (영상 내용의 핵심 증상, 비유, 또는 약재의 효능을 강조하여 시청자의 흥미를 유발하는 매력적인 제목)
 YouTube Hashtags: (해시태그 5개. 단, #오리한의원, #대구는 반드시 포함하고, 1개는 질병명, 나머지 2개는 해당 영상과 관련된 인기 검색어 주제어로 구성할 것)
 
-${UTM_LINK_INSTRUCTION}
+\${UTM_LINK_INSTRUCTION}
 
 [배경지식: 처방 및 약재 지식, 한약 소개]
 (참고: data1, data2는 처방의 구성과 약재와 처방의 지식, data3는 전반적 지식과 특정 병에 사용하는 한약에 대한 소개입니다.)
 === data1 ===
-${data1}
+\${data1}
 === data2 ===
-${data2}
+\${data2}
 === data3 ===
-${data3}
-`;
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+\${data3}
+\`;\n`;
 
-export async function generateBlogPost(
-  mode: 'treatment' | 'info' | 'interview',
-  topic: string,
-  treatment: string,
-  situation: string,
-  maxRetries: number = 5
-): Promise<BlogGenerationResult> {
-  const ai = getGeminiClient();
-  const promptText = mode === 'treatment' ? getTreatmentPrompt(topic, treatment, situation) : 
-                     mode === 'interview' ? getInterviewPrompt(topic, treatment, situation) :
-                     getInfoPrompt(topic, treatment, situation);
+const index = content.indexOf('const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));');
+const remaining = content.slice(index);
 
-  let attempt = 0;
-  let response;
-  let currentModel = "gemini-3.6-flash";
-
-  while (attempt < maxRetries) {
-    try {
-      const reqConfig: any = {};
-      if (mode === 'info') {
-        reqConfig.tools = [{ googleSearch: {} }];
-      }
-
-      response = await ai.models.generateContent({
-        model: currentModel,
-        contents: [{ role: "user", parts: [{ text: promptText }] }],
-        ...(mode === 'info' ? { config: reqConfig } : {})
-      });
-      break; // Success, exit the loop
-    } catch (e: any) {
-      attempt++;
-      console.error(`Blog generation failed (attempt ${attempt}/${maxRetries}) with model ${currentModel}:`, e);
-      
-      const isOverloaded = e?.message?.includes('503') || e?.message?.includes('429') || e?.status === 503 || e?.status === 429 || String(e).includes('503') || String(e).includes('429') || String(e).includes('TIMEOUT');
-      const isNotFound = e?.message?.includes('404') || e?.status === 404 || String(e).includes('404');
-      
-      if ((isOverloaded || isNotFound) && attempt < maxRetries) {
-        if (currentModel === "gemini-3.6-flash") {
-            currentModel = "gemini-3.6-flash";
-        } else if (currentModel === "gemini-3.6-flash") {
-            currentModel = "gemini-3.5-flash-lite";
-        } else {
-            currentModel = "gemini-3.6-flash";
-        }
-
-        const waitTime = Math.pow(2, attempt) * 2000 + Math.random() * 1000;
-        console.log(`Waiting ${Math.round(waitTime)}ms before retrying blog generation with model ${currentModel}...`);
-        await delay(waitTime);
-      } else {
-        throw e; // Throw immediately for other errors or if max retries reached
-      }
-    }
-  }
-
-  if (!response) {
-    throw new Error("Failed to generate blog post after multiple attempts.");
-  }
-
-  const text = response.text || '';
-  
-  const imageSuggestionMatch = text.match(/\[Part 0: Image Suggestion\]\n([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 1:|$)/);
-  const blogMatch = text.match(/\[Part 1: Naver Blog Post\]\n([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 2:|$)/);
-  const instaTitleMatch = text.match(/Insta Title:\s*(.*)/);
-  const instaContentMatch = text.match(/Insta Content:\s*([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 3:|$)/);
-  const videoScriptMatch = text.match(/Video Script:\n([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 4:|$)/);
-  const youtubeTtsScriptMatch = text.match(/\[Part 4: YouTube TTS Script\]\s*([\s\S]*?)(?=(?:---|###|\s)*\[Part 5:|$)/i);
-  const youtubeTitleMatch = text.match(/YouTube Title:\s*(.*)/);
-  const youtubeHashtagsMatch = text.match(/YouTube Hashtags:\s*(.*)/);
-
-  const imageSuggestion = imageSuggestionMatch ? imageSuggestionMatch[1].trim() : '';
-  const blog = blogMatch ? blogMatch[1].trim() : text;
-  const instaTitle = instaTitleMatch ? instaTitleMatch[1].trim() : '';
-  let instaContent = instaContentMatch ? instaContentMatch[1].trim() : '';
-  
-  // Clean up any leaked markdown separators at the end of instaContent
-  instaContent = instaContent.replace(/(?:\n|^)(?:---|###)[\s\S]*$/, '').trim();
-  
-  let youtubeTtsScript = youtubeTtsScriptMatch ? youtubeTtsScriptMatch[1].trim() : '';
-  youtubeTtsScript = youtubeTtsScript.replace(/<생각>[\s\S]*?<\/생각>\s*/gi, '').replace(/(?:---|###|\s)*$/, '').trim();
-  const youtubeTitle = youtubeTitleMatch ? youtubeTitleMatch[1].trim() : '';
-  const youtubeHashtags = youtubeHashtagsMatch ? youtubeHashtagsMatch[1].trim() : '';
-
-  let videoScript: string[] = [];
-  if (videoScriptMatch) {
-    videoScript = videoScriptMatch[1]
-      .split('\n')
-      .filter(line => line.trim().match(/^\d+\./))
-      .map(line => line.replace(/^\d+\.\s*/, '').trim());
-  }
-
-  let sources;
-  if (mode === 'info' && response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-    sources = response.candidates[0].groundingMetadata.groundingChunks
-      .filter(chunk => chunk.web)
-      .map(chunk => ({
-        uri: chunk.web?.uri || '',
-        title: chunk.web?.title || ''
-      }));
-  }
-
-  return { blog, instaTitle, instaContent, videoScript, youtubeTtsScript, youtubeTitle, youtubeHashtags, sources, imageSuggestion };
-}
+fs.writeFileSync('src/services/blog/geminiService.ts', newFunctions + remaining);
