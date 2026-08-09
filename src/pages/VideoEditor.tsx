@@ -3,11 +3,30 @@ import { CinemagraphGenerator } from '../components/video/CinemagraphGenerator';
 import { Sparkles, Play, Loader2, History, Trash2, Copy, Check, FileText, Hash } from 'lucide-react';
 import { VideoHistoryItem, loadVideoFromDB, saveVideoToDB } from '../hooks/useVideoHistory';
 
+const getTtsChunks = (text: string): string[] => {
+  if (!text) return [];
+  const sentences = text.match(/[^.!?\n]+[.!?\n]+[\s]*|[^.!?\n]+$/g) || [text];
+  
+  const chunks: string[] = [];
+  let currentChunk = '';
+
+  for (const sentence of sentences) {
+    if ((currentChunk + sentence).length <= 290) {
+      currentChunk += sentence;
+    } else {
+      if (currentChunk) chunks.push(currentChunk.trim());
+      currentChunk = sentence;
+    }
+  }
+  if (currentChunk) chunks.push(currentChunk.trim());
+  return chunks;
+};
+
 export default function VideoEditor() {
   const [history, setHistory] = useState<VideoHistoryItem[]>([]);
   const generatorRef = useRef<any>(null);
   const [latestBlogContent, setLatestBlogContent] = useState<any>(null);
-  const [copiedTTS, setCopiedTTS] = useState(false);
+  const [copiedTTSIndex, setCopiedTTSIndex] = useState<number | null>(null);
   const [copiedTitle, setCopiedTitle] = useState(false);
 
   useEffect(() => {
@@ -144,17 +163,20 @@ export default function VideoEditor() {
         {latestBlogContent?.result?.youtubeTtsScript && (
           <div className="mb-4 flex flex-wrap items-center gap-2 shrink-0 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm z-10">
             <span className="text-sm font-semibold text-gray-700 px-2 flex items-center gap-1.5"><FileText className="w-4 h-4 text-[#ffcd4a]" /> 블로그 연동 (최근 포스팅)</span>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(latestBlogContent.result.youtubeTtsScript);
-                setCopiedTTS(true);
-                setTimeout(() => setCopiedTTS(false), 2000);
-              }}
-              className="px-4 py-2 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors flex items-center gap-2"
-            >
-              {copiedTTS ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-              대본복사
-            </button>
+            {getTtsChunks(latestBlogContent.result.youtubeTtsScript).map((chunk, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  navigator.clipboard.writeText(chunk);
+                  setCopiedTTSIndex(index);
+                  setTimeout(() => setCopiedTTSIndex(null), 2000);
+                }}
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors flex items-center gap-2"
+              >
+                {copiedTTSIndex === index ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                대본복사{index + 1}
+              </button>
+            ))}
             <button
               onClick={() => {
                 const cleanTitle = (latestBlogContent.result.youtubeTitle || '').replace(/^제목\s*:\s*/, '');
