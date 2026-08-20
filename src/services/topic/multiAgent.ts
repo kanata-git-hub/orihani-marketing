@@ -66,11 +66,11 @@ async function fetchRecentHistory(currentDate: Date): Promise<{ text: string, da
 }
 
 function checkDuplicatePlan(parsedReviewer: any, recentHistoryData: any[]): boolean {
-  if (!(parsedReviewer.score >= 90 && parsedReviewer.disease)) {
+  if (!(parsedReviewer.score >= 90 && parsedReviewer.disease && parsedReviewer.situation)) {
     return false;
   }
   for (const history of recentHistoryData) {
-    if (history.disease === parsedReviewer.disease) {
+    if (history.disease === parsedReviewer.disease && history.situation === parsedReviewer.situation) {
       return true;
     }
   }
@@ -268,10 +268,10 @@ export const runMultiAgentSystem = async (
         id: Date.now().toString() + Math.random(),
         timestamp: Date.now(),
         agentName: 'System',
-        message: `[중복 기획 감지] 질환/부위/소재(${parsedReviewer.disease})가 최근 1개월 내에 이미 발행되었습니다. 기획을 반려하고 다시 시작합니다.`,
+        message: `[중복 기획 감지] 질환/부위/소재(${parsedReviewer.disease})와 상황(${parsedReviewer.situation})이 최근 1개월 내에 이미 발행되었습니다. 기획을 반려하고 다시 시작합니다.`,
         type: 'error'
       });
-      reviewerFeedbackHistory += `\n\n[자동 중복 반려 사유]: 질환/부위/소재(${parsedReviewer.disease})은(는) 최근 1개월 내에 이미 포스팅했습니다. 완전히 다른 질환이나 건강상식 소재로 다시 시도하세요.`;
+      reviewerFeedbackHistory += `\n\n[자동 중복 반려 사유]: 질환/부위/소재(${parsedReviewer.disease}) 및 상황(${parsedReviewer.situation}) 조합은 최근 1개월 내에 이미 포스팅했습니다. 완전히 다른 질환이나 상황으로 다시 시도하세요.`;
       continue;
     }
 
