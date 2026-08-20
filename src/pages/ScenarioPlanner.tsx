@@ -95,15 +95,15 @@ Follow the system instructions to plan the visual scenario.`;
         }
       }
 
-      // Parse Image Prompt
-      const imageSectionMatch = text.match(/### 1\. Image Generation Prompts.*?([\s\S]*?)(?=### 2\. Video Generation Prompts)/i);
+            // Parse Image Prompt
+      const imageSectionMatch = text.match(/(?:### )?1\. Image.*?([\s\S]*?)(?=(?:### )?2\. Video|$)/i);
       if (imageSectionMatch) {
          finalImgPrompt = imageSectionMatch[1].trim();
          setLocalImagePrompt(finalImgPrompt);
       }
 
       // Parse Video Prompt
-      const videoSectionMatch = text.match(/### 2\. Video Generation Prompts.*?([\s\S]*)/i);
+      const videoSectionMatch = text.match(/(?:### )?2\. Video.*?([\s\S]*)/i);
       if (videoSectionMatch) {
          finalVideoPrompt = videoSectionMatch[1].trim();
          setLocalVideoPrompt(finalVideoPrompt);
