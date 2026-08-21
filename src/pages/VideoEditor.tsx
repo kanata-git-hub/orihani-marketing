@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CinemagraphGenerator } from '../components/video/CinemagraphGenerator';
 import { Sparkles, Play, Loader2, History, Trash2, Copy, Check, FileText, Hash } from 'lucide-react';
 import { VideoHistoryItem, loadVideoFromDB, saveVideoToDB } from '../hooks/useVideoHistory';
+import { loadScenarioHistory, ScenarioHistoryItem } from '../hooks/useScenarioHistory';
 
 const getTtsChunks = (text: string): string[] => {
   if (!text) return [];
@@ -26,6 +27,7 @@ export default function VideoEditor() {
   const [history, setHistory] = useState<VideoHistoryItem[]>([]);
   const generatorRef = useRef<any>(null);
   const [latestBlogContent, setLatestBlogContent] = useState<any>(null);
+  const [latestScenario, setLatestScenario] = useState<ScenarioHistoryItem | null>(null);
   const [copiedTTSIndex, setCopiedTTSIndex] = useState<number | null>(null);
   const [copiedTitle, setCopiedTitle] = useState(false);
 
@@ -38,6 +40,11 @@ export default function VideoEditor() {
           setLatestBlogContent(parsed[0]);
         }
       }
+      loadScenarioHistory().then(res => {
+        if (res && res.length > 0) {
+          setLatestScenario(res[0]);
+        }
+      }).catch(e => console.error(e));
     } catch (e) {
       console.error("Failed to parse content history", e);
     }
@@ -160,39 +167,44 @@ export default function VideoEditor() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 w-full flex-1 overflow-hidden flex flex-col">
-        {latestBlogContent?.result?.youtubeTtsScript && (
-          <div className="mb-4 flex flex-wrap items-center gap-2 shrink-0 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm z-10">
-            <span className="text-sm font-semibold text-gray-700 px-2 flex items-center gap-1.5"><FileText className="w-4 h-4 text-[#ffcd4a]" /> 블로그 연동 (최근 포스팅)</span>
-            {getTtsChunks(latestBlogContent.result.youtubeTtsScript).map((chunk, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  navigator.clipboard.writeText(chunk);
-                  setCopiedTTSIndex(index);
-                  setTimeout(() => setCopiedTTSIndex(null), 2000);
-                }}
-                className="px-4 py-2 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors flex items-center gap-2"
-              >
-                {copiedTTSIndex === index ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                대본복사{index + 1}
-              </button>
-            ))}
+        
+        {latestScenario?.rawPlan && (
+          <div className="mb-4 flex flex-wrap items-center gap-2 shrink-0 bg-[#fffcf8] p-3 rounded-2xl border border-[#e8dfd1] shadow-sm z-10">
+            <span className="text-sm font-bold text-[#552c24] px-2 flex items-center gap-1.5"><FileText className="w-4 h-4 text-[#d97706]" /> 마스터 시나리오 연동</span>
             <button
               onClick={() => {
-                const cleanTitle = (latestBlogContent.result.youtubeTitle || '').replace(/^제목\s*:\s*/, '');
-                const cleanHashtags = (latestBlogContent.result.youtubeHashtags || '').replace(/^해시태그\s*:\s*/, '');
-                const text = `${cleanTitle}\n\n${cleanHashtags}`;
-                navigator.clipboard.writeText(text);
+                const plan = latestScenario.rawPlan;
+                const scriptMatch = plan.match(/📱 화면 자막 & TTS[\s\S]*?(?=💬)/);
+                const textToCopy = scriptMatch ? scriptMatch[0].trim() : plan;
+                navigator.clipboard.writeText(textToCopy);
+                setCopiedTTSIndex(999);
+                setTimeout(() => setCopiedTTSIndex(null), 2000);
+              }}
+              className="px-4 py-2 rounded-xl text-sm font-bold bg-[#fef3c7] text-[#d97706] hover:bg-[#fde68a] transition-colors flex items-center gap-2 border border-[#fde68a]"
+            >
+              {copiedTTSIndex === 999 ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+              대본(자막) 복사
+            </button>
+            <button
+              onClick={() => {
+                const plan = latestScenario.rawPlan;
+                const titleMatch = plan.match(/🎬 제목:\s*(.*)/);
+                const title = titleMatch ? titleMatch[1] : latestScenario.title;
+                const hashtagMatch = plan.match(/🏷️ 해시태그 5개:\s*(.*)/);
+                const hashtags = hashtagMatch ? hashtagMatch[1] : '';
+                const textToCopy = `${title}\n\n${hashtags}`;
+                navigator.clipboard.writeText(textToCopy);
                 setCopiedTitle(true);
                 setTimeout(() => setCopiedTitle(false), 2000);
               }}
-              className="px-4 py-2 rounded-xl text-sm font-medium bg-green-50 text-green-600 hover:bg-green-100 transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-xl text-sm font-bold bg-[#fef3c7] text-[#d97706] hover:bg-[#fde68a] transition-colors flex items-center gap-2 border border-[#fde68a]"
             >
-              {copiedTitle ? <Check className="w-4 h-4 text-green-500" /> : <Hash className="w-4 h-4" />}
-              제목복사
+              {copiedTitle ? <Check className="w-4 h-4 text-green-600" /> : <Hash className="w-4 h-4" />}
+              제목/태그 복사
             </button>
           </div>
         )}
+
 
         <CinemagraphGenerator 
           ref={generatorRef}

@@ -22,8 +22,8 @@ Your objective is to generate highly engaging, viral POV-style short-form video 
 
 [SCENARIO 3-CORE RULES (CRITICAL)]
 1. 소재의 출발점 (현실 공감): 직장인 및 현대인이 매일 겪는 고통/순간을 소재로 잡습니다. (예: 월요병, 알람, 야근, 칼퇴 직전 업무 폭탄, 다이어트 중 야식 유혹, 주식 폭락 등). ⚠️ 절대 지루한 한의학 강의나 교과서식 치료법 설명은 넣지 마세요.
-2. 연출 방식 (초현실 과장 개그): 일상의 작은 상황을 우주급/물리법칙 파괴급의 시각적 과장으로 터뜨립니다. (예: 라면 끓이다 블랙홀 생성, 넷플릭스 소리에 우주 발사, 선풍기 바람에 영혼 가출, 콜라 폭발 서핑 등). 마지막은 멍때리는 허탈한 표정 또는 능청스러운 태도로 마무리합니다.
-3. 자막 및 나레이션 (초압축): 자막은 씬당 1줄(8~12자 내외)로 극단적으로 짧고 직관적이게 씁니다. 나레이션(TTS)은 2초 내외로 1마디만 간결하게 넣습니다.
+2. 연출 방식 (초현실 과장 개그): 일상의 작은 상황을 우주급/물리법칙 파괴급의 시각적 과장으로 터뜨립니다. (단, 결과물은 피로회복제 광고처럼 보이면 안 되며, 무조건 어이없는 상황극이어야 합니다.) (예: 라면 끓이다 블랙홀 생성, 넷플릭스 소리에 우주 발사, 선풍기 바람에 영혼 가출, 콜라 폭발 서핑 등). 마지막은 멍때리는 허탈한 표정 또는 능청스러운 태도로 마무리합니다.
+3. 자막 (초현실 밈 & 인과관계 비틀기): 단순히 '피곤하다 -> 약 먹고 낫는다' 같은 뻔하고 고루한 광고 자막 절대 금지. (예: '탕비실 커피인 줄 알고 원장님 약 훔쳐 먹음 -> 강제 오버클럭 됨'). 인과관계를 엉뚱하게 비틀고, 직장인들이 낄낄거릴 수 있는 완벽한 '인터넷 밈(Meme)' 감성으로 자막을 씁니다. 나레이션(TTS)은 2초 내외로 1마디만 간결하게 넣습니다.
 
 [CHARACTER ASSETS & STRICT VISUAL CONSTRAINTS]
 1. O-wonjang (Korean Medicine Doctor / 한의사): Anthropomorphic white duck. EXACTLY 2 small tufts of hair pointing upwards on top of head. Wearing round glasses (thin frames). Light pink rosy cheeks. Wearing a white doctor's open coat, revealing a crisp light blue collared shirt underneath. Orange duck bill and orange webbed feet. ABSOLUTELY NO TEETH. Must have a seamless, completely closed, smooth duck bill. Slim, standard upright proportions (NOT FAT). He is a traditional Korean medicine doctor. Reference files: "src/오원장 3d.png" (front), "src/오원장 3D-02.png" (side), "src/오원장 3D-03.png" (back).
