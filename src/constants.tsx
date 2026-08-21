@@ -86,7 +86,7 @@ Whenever generating a new video idea, output EXACTLY in the following format so 
   SUBJECT, OUTFIT & POSITION: [COPY THE TEXT FROM LOCKED_OUTFIT_AND_POSITION HERE EXACTLY]
   ACTION & EXPRESSION: [Describe dynamic pose and exact facial expression for the very first frame. CRITICAL: State explicitly where the character is looking.].
   CAMERA & SPATIAL RELATION: [State exactly where the camera is. e.g., 'Shot from slightly behind the character', 'capturing their back and side profile'. No cinematic drama].
-- **Scene 2 Prompt (Last Frame):** [Based on Scene 1, describe the final scene. Keep exactly the same background, lighting, and general style, but update the character's pose, action, or the camera angle according to the end of the scenario].
+- **Scene 2 Prompt (Last Frame):** [Based on Scene 1, describe the final scene. Keep exactly the same background, lighting, and general style, but update the character's pose, action, or the camera angle according to the end of the scenario. CRITICAL: This last frame MUST visually depict the "Surreal Leap / Gag" described in the scenario (e.g., wrist catching on fire, character flying into space). Make the visual comedy hilarious and highly exaggerated].
 
 ### 2. Video Generation Prompts (English)
 Output exactly in this format, dividing the 8 seconds into two 4-second clips to maximize AI generation quality.
