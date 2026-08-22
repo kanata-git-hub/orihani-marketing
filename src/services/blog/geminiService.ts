@@ -98,10 +98,7 @@ Video Script:
 
 [Part 4: YouTube TTS Script]
 [쇼츠 대본 작성 가이드 (초현실 개그 밈)]
-1. 톤앤매너: 일상이나 질병의 고통(만성피로, 소화불량 등)을 시각적으로 극도로 과장된 '초현실적인 밈(Surreal Comedy)'으로 기획하세요. 환자를 비하하는 단어 절대 금지.
-* 예시 1: 퇴근 10분 전 업무 폭탄 -> 거대한 커피 쓰나미를 타고 오리 튜브로 피난.
-* 예시 2: 금요일 밤 넷플릭스 -> 넷플릭스 '두둥' 소리에 방바닥이 박살나고 소파째 우주로 사출됨.
-* 예시 3: 월요일 아침 피로 -> 침대가 노란색 테이프 촉수로 나를 꽁꽁 묶어서 안 놔줌.
+1. 톤앤매너 및 주제 비틀기: 글감 주제가 '특정 질환에 대한 약/처방'이더라도 영상 시나리오는 직접적인 약재 홍보를 피하고 당장 따라할 수 있는 '가벼운 생활 요법(호흡법, 지압법 등)'으로 비틀어서 기획하세요. (예: 공진단 대신 6초 한숨 쉬기 추천). 시각적으로는 일상의 작은 상황을 우주급 과장으로 터뜨리세요. (예: 6초 숨 쉬었더니 부교감신경 폭발로 침대가 날아감, 물 마셨더니 붓기로 인해 풍선처럼 거대해짐 등). 환자 비하 금지.
 
 2. [Part 3: 5-Second Video Script] 작성법 (영상 길이 5초 기준):
 - 영상은 무조건 딱 2개의 장면(Scene)으로만 구성됩니다.
@@ -115,10 +112,14 @@ Video Script:
 (주의: 태그 이름은 TTS Script지만, 실제로는 '시각적 연출 지시문'과 '썸네일 문구'를 작성합니다)
 - 첫 줄: [쇼츠 썸네일 문구] (클릭을 유도하는 10자 이내의 짧은 텍스트)
 - 두 번째 줄부터: [시각적 연출 지시문] (위에서 기획한 거대한 커피 쓰나미, 방바닥 박살 등 초현실적인 화면을 어떻게 AI 이미지/비디오로 생성할지 묘사)
+- 만약 등장인물의 대사가 필요한 경우, 반드시 다음과 같은 형식으로 대사를 추가하세요:
+  (캐릭터 영문명 매핑: 오원장 -> O-wonjang, 소미 -> somi, 덕이 -> Deok-i)
+  예시: DIALOGUE : O-wonjang : "야식 바다를 지나갈 때 절대 날 풀지 마라!"
 
 [Part 5: YouTube Metadata]
-YouTube Title: (유튜브 쇼츠용 제목. 불쾌하지 않고, 시청자가 공감하며 빵 터질 수 있는 제목. 예: "퇴근 10분 전 직장인 특", "월요일 아침 침대가 안 놔줄 때")
-YouTube Hashtags: (#만성피로 #직장인공감 #대구한의원 등 해시태그 5개 이내)
+YouTube Title: (유튜브 쇼츠용 후킹 제목. 예1: "자도 자도 피곤할 때 6초 한숨 쉬면 생기는 일", 예2: "\"물만 마셔도 살찐다는 사람\"이 물 마시면 생기는 일 💧")
+YouTube Hashtags: (주제에 맞는 핵심 해시태그 4개, 마지막은 무조건 #오리한의원. 예: #만성피로 #호흡법 #자율신경 #오리한의원)
+YouTube Narration: (영상에 실제로 들어갈 아주 짧고 임팩트 있는 나레이션. 1~2문장 내외. 예1: "들이쉬기 4초, 내쉬기 6초! 부교감신경 ON!", 예2: "살이 아니라 붓기입니다! 순환 안 되면 진짜 풍선 됩니다.")
 
 [사용자 입력]
 1. 글 주제(소재): ${topic}
@@ -178,10 +179,7 @@ Video Script:
 
 [Part 4: YouTube TTS Script]
 [쇼츠 대본 작성 가이드 (초현실 개그 밈)]
-1. 톤앤매너: 일상이나 질병의 고통(만성피로, 소화불량 등)을 시각적으로 극도로 과장된 '초현실적인 밈(Surreal Comedy)'으로 기획하세요. 환자를 비하하는 단어 절대 금지.
-* 예시 1: 퇴근 10분 전 업무 폭탄 -> 거대한 커피 쓰나미를 타고 오리 튜브로 피난.
-* 예시 2: 금요일 밤 넷플릭스 -> 넷플릭스 '두둥' 소리에 방바닥이 박살나고 소파째 우주로 사출됨.
-* 예시 3: 월요일 아침 피로 -> 침대가 노란색 테이프 촉수로 나를 꽁꽁 묶어서 안 놔줌.
+1. 톤앤매너 및 주제 비틀기: 글감 주제가 '특정 질환에 대한 약/처방'이더라도 영상 시나리오는 직접적인 약재 홍보를 피하고 당장 따라할 수 있는 '가벼운 생활 요법(호흡법, 지압법 등)'으로 비틀어서 기획하세요. (예: 공진단 대신 6초 한숨 쉬기 추천). 시각적으로는 일상의 작은 상황을 우주급 과장으로 터뜨리세요. (예: 6초 숨 쉬었더니 부교감신경 폭발로 침대가 날아감, 물 마셨더니 붓기로 인해 풍선처럼 거대해짐 등). 환자 비하 금지.
 
 2. [Part 3: 5-Second Video Script] 작성법 (영상 길이 5초 기준):
 - 영상은 무조건 딱 2개의 장면(Scene)으로만 구성됩니다.
@@ -195,10 +193,14 @@ Video Script:
 (주의: 태그 이름은 TTS Script지만, 실제로는 '시각적 연출 지시문'과 '썸네일 문구'를 작성합니다)
 - 첫 줄: [쇼츠 썸네일 문구] (클릭을 유도하는 10자 이내의 짧은 텍스트)
 - 두 번째 줄부터: [시각적 연출 지시문] (위에서 기획한 거대한 커피 쓰나미, 방바닥 박살 등 초현실적인 화면을 어떻게 AI 이미지/비디오로 생성할지 묘사)
+- 만약 등장인물의 대사가 필요한 경우, 반드시 다음과 같은 형식으로 대사를 추가하세요:
+  (캐릭터 영문명 매핑: 오원장 -> O-wonjang, 소미 -> somi, 덕이 -> Deok-i)
+  예시: DIALOGUE : O-wonjang : "야식 바다를 지나갈 때 절대 날 풀지 마라!"
 
 [Part 5: YouTube Metadata]
-YouTube Title: (유튜브 쇼츠용 제목. 불쾌하지 않고, 시청자가 공감하며 빵 터질 수 있는 제목. 예: "퇴근 10분 전 직장인 특", "월요일 아침 침대가 안 놔줄 때")
-YouTube Hashtags: (#만성피로 #직장인공감 #대구한의원 등 해시태그 5개 이내)
+YouTube Title: (유튜브 쇼츠용 후킹 제목. 예1: "자도 자도 피곤할 때 6초 한숨 쉬면 생기는 일", 예2: "\"물만 마셔도 살찐다는 사람\"이 물 마시면 생기는 일 💧")
+YouTube Hashtags: (주제에 맞는 핵심 해시태그 4개, 마지막은 무조건 #오리한의원. 예: #만성피로 #호흡법 #자율신경 #오리한의원)
+YouTube Narration: (영상에 실제로 들어갈 아주 짧고 임팩트 있는 나레이션. 1~2문장 내외. 예1: "들이쉬기 4초, 내쉬기 6초! 부교감신경 ON!", 예2: "살이 아니라 붓기입니다! 순환 안 되면 진짜 풍선 됩니다.")
 
 [사용자 입력]
 1. 글 주제(소재): ${topic}
@@ -259,10 +261,7 @@ Video Script:
 
 [Part 4: YouTube TTS Script]
 [쇼츠 대본 작성 가이드 (초현실 개그 밈)]
-1. 톤앤매너: 일상이나 질병의 고통(만성피로, 소화불량 등)을 시각적으로 극도로 과장된 '초현실적인 밈(Surreal Comedy)'으로 기획하세요. 환자를 비하하는 단어 절대 금지.
-* 예시 1: 퇴근 10분 전 업무 폭탄 -> 거대한 커피 쓰나미를 타고 오리 튜브로 피난.
-* 예시 2: 금요일 밤 넷플릭스 -> 넷플릭스 '두둥' 소리에 방바닥이 박살나고 소파째 우주로 사출됨.
-* 예시 3: 월요일 아침 피로 -> 침대가 노란색 테이프 촉수로 나를 꽁꽁 묶어서 안 놔줌.
+1. 톤앤매너 및 주제 비틀기: 글감 주제가 '특정 질환에 대한 약/처방'이더라도 영상 시나리오는 직접적인 약재 홍보를 피하고 당장 따라할 수 있는 '가벼운 생활 요법(호흡법, 지압법 등)'으로 비틀어서 기획하세요. (예: 공진단 대신 6초 한숨 쉬기 추천). 시각적으로는 일상의 작은 상황을 우주급 과장으로 터뜨리세요. (예: 6초 숨 쉬었더니 부교감신경 폭발로 침대가 날아감, 물 마셨더니 붓기로 인해 풍선처럼 거대해짐 등). 환자 비하 금지.
 
 2. [Part 3: 5-Second Video Script] 작성법 (영상 길이 5초 기준):
 - 영상은 무조건 딱 2개의 장면(Scene)으로만 구성됩니다.
@@ -276,10 +275,14 @@ Video Script:
 (주의: 태그 이름은 TTS Script지만, 실제로는 '시각적 연출 지시문'과 '썸네일 문구'를 작성합니다)
 - 첫 줄: [쇼츠 썸네일 문구] (클릭을 유도하는 10자 이내의 짧은 텍스트)
 - 두 번째 줄부터: [시각적 연출 지시문] (위에서 기획한 거대한 커피 쓰나미, 방바닥 박살 등 초현실적인 화면을 어떻게 AI 이미지/비디오로 생성할지 묘사)
+- 만약 등장인물의 대사가 필요한 경우, 반드시 다음과 같은 형식으로 대사를 추가하세요:
+  (캐릭터 영문명 매핑: 오원장 -> O-wonjang, 소미 -> somi, 덕이 -> Deok-i)
+  예시: DIALOGUE : O-wonjang : "야식 바다를 지나갈 때 절대 날 풀지 마라!"
 
 [Part 5: YouTube Metadata]
-YouTube Title: (유튜브 쇼츠용 제목. 불쾌하지 않고, 시청자가 공감하며 빵 터질 수 있는 제목. 예: "퇴근 10분 전 직장인 특", "월요일 아침 침대가 안 놔줄 때")
-YouTube Hashtags: (#만성피로 #직장인공감 #대구한의원 등 해시태그 5개 이내)
+YouTube Title: (유튜브 쇼츠용 후킹 제목. 예1: "자도 자도 피곤할 때 6초 한숨 쉬면 생기는 일", 예2: "\"물만 마셔도 살찐다는 사람\"이 물 마시면 생기는 일 💧")
+YouTube Hashtags: (주제에 맞는 핵심 해시태그 4개, 마지막은 무조건 #오리한의원. 예: #만성피로 #호흡법 #자율신경 #오리한의원)
+YouTube Narration: (영상에 실제로 들어갈 아주 짧고 임팩트 있는 나레이션. 1~2문장 내외. 예1: "들이쉬기 4초, 내쉬기 6초! 부교감신경 ON!", 예2: "살이 아니라 붓기입니다! 순환 안 되면 진짜 풍선 됩니다.")
 
 [사용자 입력]
 1. 인터뷰 주제(소재): ${topic}
@@ -367,6 +370,7 @@ export async function generateBlogPost(
   const youtubeTtsScriptMatch = text.match(/\[Part 4: YouTube TTS Script\]\s*([\s\S]*?)(?=(?:---|###|\s)*\[Part 5:|$)/i);
   const youtubeTitleMatch = text.match(/YouTube Title:\s*(.*)/);
   const youtubeHashtagsMatch = text.match(/YouTube Hashtags:\s*(.*)/);
+  const youtubeNarrationMatch = text.match(/YouTube Narration:\s*(.*)/);
 
   const imageSuggestion = imageSuggestionMatch ? imageSuggestionMatch[1].trim() : '';
   const blog = blogMatch ? blogMatch[1].trim() : text;
@@ -380,6 +384,7 @@ export async function generateBlogPost(
   youtubeTtsScript = youtubeTtsScript.replace(/<생각>[\s\S]*?<\/생각>\s*/gi, '').replace(/(?:---|###|\s)*$/, '').trim();
   const youtubeTitle = youtubeTitleMatch ? youtubeTitleMatch[1].trim() : '';
   const youtubeHashtags = youtubeHashtagsMatch ? youtubeHashtagsMatch[1].trim() : '';
+  const youtubeNarration = youtubeNarrationMatch ? youtubeNarrationMatch[1].trim().replace(/^["']|["']$/g, "") : '';
 
   let videoScript: string[] = [];
   if (videoScriptMatch) {
@@ -399,5 +404,5 @@ export async function generateBlogPost(
       }));
   }
 
-  return { blog, instaTitle, instaContent, videoScript, youtubeTtsScript, youtubeTitle, youtubeHashtags, sources, imageSuggestion };
+  return { blog, instaTitle, instaContent, videoScript, youtubeTtsScript, youtubeTitle, youtubeHashtags, youtubeNarration, sources, imageSuggestion };
 }

@@ -174,8 +174,8 @@ export default function VideoEditor() {
             <button
               onClick={() => {
                 const plan = latestScenario.rawPlan;
-                const scriptMatch = plan.match(/📱 화면 자막 & TTS[\s\S]*?(?=💬)/);
-                const textToCopy = scriptMatch ? scriptMatch[0].trim() : plan;
+                const scriptMatch = plan.match(/🎙️ 나레이션 \(TTS\):\s*(.*)/);
+                const textToCopy = scriptMatch ? scriptMatch[1].trim().replace(/^["']|["']$/g, '') : plan;
                 navigator.clipboard.writeText(textToCopy);
                 setCopiedTTSIndex(999);
                 setTimeout(() => setCopiedTTSIndex(null), 2000);
