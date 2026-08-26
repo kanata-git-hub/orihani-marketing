@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CinemagraphGenerator } from '../components/video/CinemagraphGenerator';
-import { Sparkles, Play, Loader2, History, Trash2, Copy, Check, FileText, Hash } from 'lucide-react';
+import { Sparkles, Play, Loader2, History, Trash2, Copy, Check, FileText, Hash, MessageCircle, Type } from 'lucide-react';
 import { VideoHistoryItem, loadVideoFromDB, saveVideoToDB } from '../hooks/useVideoHistory';
 import { loadScenarioHistory, ScenarioHistoryItem } from '../hooks/useScenarioHistory';
 
@@ -30,6 +30,8 @@ export default function VideoEditor() {
   const [latestScenario, setLatestScenario] = useState<ScenarioHistoryItem | null>(null);
   const [copiedTTSIndex, setCopiedTTSIndex] = useState<number | null>(null);
   const [copiedTitle, setCopiedTitle] = useState(false);
+  const [copiedComment, setCopiedComment] = useState(false);
+  const [copiedThumbnailText, setCopiedThumbnailText] = useState(false);
 
   useEffect(() => {
     try {
@@ -201,6 +203,34 @@ export default function VideoEditor() {
             >
               {copiedTitle ? <Check className="w-4 h-4 text-green-600" /> : <Hash className="w-4 h-4" />}
               제목/태그 복사
+            </button>
+            <button
+              onClick={() => {
+                const plan = latestScenario.rawPlan;
+                const thumbMatch = plan.match(/🖼️ 썸네일 텍스트:\s*(.*)/);
+                const thumbText = thumbMatch ? thumbMatch[1].trim() : '';
+                navigator.clipboard.writeText(thumbText);
+                setCopiedThumbnailText(true);
+                setTimeout(() => setCopiedThumbnailText(false), 2000);
+              }}
+              className="px-4 py-2 rounded-xl text-sm font-bold bg-[#fef3c7] text-[#d97706] hover:bg-[#fde68a] transition-colors flex items-center gap-2 border border-[#fde68a]"
+            >
+              {copiedThumbnailText ? <Check className="w-4 h-4 text-green-600" /> : <Type className="w-4 h-4" />}
+              썸네일 텍스트 복사
+            </button>
+            <button
+              onClick={() => {
+                const plan = latestScenario.rawPlan;
+                const commentMatch = plan.match(/💬 오원장 고정 댓글:\s*(.*)/);
+                const comment = commentMatch ? commentMatch[1].trim() : '';
+                navigator.clipboard.writeText(comment);
+                setCopiedComment(true);
+                setTimeout(() => setCopiedComment(false), 2000);
+              }}
+              className="px-4 py-2 rounded-xl text-sm font-bold bg-[#fef3c7] text-[#d97706] hover:bg-[#fde68a] transition-colors flex items-center gap-2 border border-[#fde68a]"
+            >
+              {copiedComment ? <Check className="w-4 h-4 text-green-600" /> : <MessageCircle className="w-4 h-4" />}
+              고정댓글 복사
             </button>
           </div>
         )}
