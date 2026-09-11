@@ -9,7 +9,7 @@ import { loadScenarioHistory, saveScenarioHistory, ScenarioHistoryItem } from '.
 
 export default function ScenarioPlanner() {
   const { 
-    sharedTitle, 
+    sharedTitle, setSharedScenarioId, 
     sharedInstaContent,
     sharedBlogContent,
     sharedScript,
@@ -118,6 +118,7 @@ Follow the system instructions to plan the visual scenario.`;
         createdAt: Date.now()
       };
       
+      setSharedScenarioId(newItem.id);
       setHistory(prev => {
         const updated = [newItem, ...prev].slice(0, 10);
         saveScenarioHistory(updated).catch(e => console.error(e));
@@ -134,6 +135,7 @@ Follow the system instructions to plan the visual scenario.`;
   };
 
   const loadHistoryItem = (item: ScenarioHistoryItem) => {
+    setSharedScenarioId(item.id);
     setRawPlan(item.rawPlan || '');
     setLocalImagePrompt(item.imagePrompt || '');
     setLocalVideoPrompt(item.videoPrompt || '');

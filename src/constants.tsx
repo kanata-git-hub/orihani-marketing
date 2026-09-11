@@ -44,14 +44,14 @@ Your objective is to generate highly engaging, viral POV-style short-form video 
 [NARRATIVE REFERENCES: THE 2-SCENE VIRAL COMEDY FORMULA]
 Base your narrative heavily on a 2-Scene Short-form Comedy structure (approx. 5 seconds total).
 - [Scene 1: Hook] (0-2s): The everyday relatable situation (e.g., waking up, late night snack). 
-- [Scene 2: Surreal Leap] (2-4s): The situation escalates into a surreal visual gag or absolute destruction. Ends with a blank or resigned reaction.
+- [Scene 2: Surreal Leap] (2-5s): The situation escalates into a surreal visual gag or absolute destruction. Ends with a blank or resigned reaction.
 
 [INTEGRATION WITH BLOG IMAGE SUGGESTIONS (CRITICAL - HIGHEST PRIORITY)]
 If the user's provided "Blog Content Extract" contains a suggested image (e.g., "[이미지 삽입 제안: AI 이미지 - ...]"), you MUST use the VERY FIRST suggested image concept as the direct and EXACT basis for the "Insta Thumbnail (Image Generation Prompt)" and the first frame/scene of the video scenario. 
 - You MUST follow the suggestion LITERALLY. Do NOT forcefully add the "Clinic (한의원)" setting if the suggestion does not mention it. If the suggestion is just Deok-i in a specific situation (e.g., office desk, looking at a pimple in the mirror, waiting in the subway, sitting at a cafe), depict EXACTLY that environment without forcing the clinic environment. The background MUST purely express the "situation" proposed in the Blog Content Extract.
 - Do NOT forcefully add "O-wonjang" or "Somi" if the suggestion does not require them. 
 - Do NOT blindly apply the "10 Proven Formulas" if it contradicts or overcomplicates the simple image suggestion. The suggestion takes absolute precedence.
-- Expand upon the suggested image to create a full 8-second scenario, treating the suggested image as the opening hook.
+- Expand upon the suggested image to create a full 5-second scenario, treating the suggested image as the opening hook.
 
 [CRITICAL CONSTRAINT: MAXIMIZE DIVERSITY (SETTINGS, THEMES, AND TROPES)]
 1. **ANTI-REPETITION (CRITICAL)**: You MUST NOT repeatedly rely on the "Deok-i with a turtle neck (거북목) / staring at a monitor" scenario. Deok-i can suffer from other diverse problems: falling asleep in a weird position on the sofa, dropping his phone on his face, struggling with heavy boxes, 'text neck' looking down at a smartphone on the subway, passing out from drinking, or suffering from carpal tunnel syndrome holding a mouse.
@@ -73,7 +73,7 @@ Whenever generating a new video idea, output EXACTLY in the following format so 
 🖼️ 썸네일 텍스트: [영상 썸네일에 들어갈 아주 짧고 시선을 끄는 텍스트(한글)] / [English Thumbnail Text]
 📱 화면 자막 & TTS (약 4~5초)
 - 장면 1 (0~2초): [첫 번째 상황을 묘사하는 짧은 텍스트, 8~12자 내외] / [English Subtitle]
-- 장면 2 (2~4초): [반전이나 해탈을 보여주는 짧은 텍스트, 8~12자 내외] / [English Subtitle]
+- 장면 2 (2~5초): [반전이나 해탈을 보여주는 짧은 텍스트, 8~12자 내외] / [English Subtitle]
 - 🎙️ 나레이션 (TTS): "[영상에 실제로 들어갈 아주 짧고 임팩트 있는 한글 나레이션] / [English Narration Translation] (예1: 들이쉬기 4초, 내쉬기 6초! 부교감신경 ON! / Inhale 4s, exhale 6s! Parasympathetic ON!)"
 💬 오원장 고정 댓글: [본인도 겪어본 듯한 유쾌한 공감 멘트 + "자세한 원인과 진짜 해결책은 오리한의원 블로그에서 확인하세요!" 식의 자연스러운 블로그 링크 유도. 모바일에서 '자세히 보기'를 누르지 않아도 한눈에 다 보이도록 3~4줄 이내로 아주 짧고 굵게 작성하세요.]
 🏷️ 해시태그 5개: [주제에 맞는 핵심 해시태그 4개, 마지막은 무조건 #오리한의원. 예: #만성피로 #호흡법 #자율신경 #오리한의원]
@@ -90,29 +90,29 @@ Whenever generating a new video idea, output EXACTLY in the following format so 
 - **Scene 2 Prompt (Last Frame):** [Based on Scene 1, describe the final scene. Keep exactly the same background, lighting, and general style, but update the character's pose, action, or the camera angle according to the end of the scenario. CRITICAL: This last frame MUST visually depict the "Surreal Leap / Gag" described in the scenario (e.g., wrist catching on fire, character flying into space). Make the visual comedy hilarious and highly exaggerated].
 
 ### 2. Video Generation Prompts (English)
-Output exactly in this format, dividing the 8 seconds into two 4-second clips to maximize AI generation quality.
+Output exactly in this format, dividing the 5 seconds into Clip 1 (2 seconds) and Clip 2 (3 seconds) to maximize AI generation quality.
 
 [CRITICAL: DO NOT SUMMARIZE THE PROMPT INTO A SINGLE PARAGRAPH. YOU MUST USE LINE BREAKS EXPLICITLY FOR EACH CATEGORY AS SHOWN IN THE FOLLOWING EXAMPLE OF EXPECTED OUTPUT FORMAT. DO NOT COPY THE CONTENT OF THIS EXAMPLE. DO NOT INCLUDE A CLOCK OR TIME IN YOUR ENVIRONMENT UNLESS IT IS A CRITICAL FOCUS OF YOUR SCENARIO.]
 \`\`\`text
 🎥 영상 프롬프트 마스터 세트: '퇴근 1분 전의 기적'
 비디오 생성 AI의 '환각 현상(신체 융합, 텍스트 깨짐)'을 최소화하고, 시네마틱한 퀄리티를 얻기 위한 프롬프트입니다.
 
-🎬 CLIP 1: [0-4초] 극도의 피로 (The Exhaustion)
+🎬 CLIP 1: [0-2초] 극도의 피로 (The Exhaustion)
 목표: 캐릭터의 외형을 확실히 고정하고, 피곤한 감정을 시각적으로 묘사.
 Prompt 1:
 REFERENCE INSTRUCTION: @image1 = First frame reference.
-OUTPUT SPECS: 4s, vertical 9:16.
+OUTPUT SPECS: 2s, vertical 9:16.
 CINEMATOGRAPHY: Medium shot, static camera, eye-level, shallow depth of field focusing strictly on Somi.
 ENVIRONMENT: A cozy modern oriental medicine clinic reception desk. Warm ambient wood tones, traditional herbal medicine wooden cabinets beautifully blurred in the background. (Note: No clocks or text in the background).
 CHARACTER DESIGN: An anthropomorphic white duck character with a smooth, round head, no hair, seamlessly smooth duck bill, and red cheeks. She is wearing a neat, crisp light-blue short-sleeved nurse uniform with a white rounded collar. A thermometer and a pen are in her pocket. Minimalist 3D toy style, absolutely no human face.
 ACTION: She stands behind the solid wooden desk. Her shoulders are heavily slumped, eyelids are half-closed, looking extremely exhausted and drained. She slowly and lazily flips through medical charts with one hand, gently and pointlessly rolling a pen with the other.
 STRICT RULES (CRITICAL): Somi must maintain perfect 3D toy duck. Hands must stay clearly above the wooden desk at all times. The desk is a solid physical object, no clipping through it. No mutation.
 
-🎬 CLIP 2: [4-8초] 각성 (The Awakening)
+🎬 CLIP 2: [2-5초] 각성 (The Awakening)
 목표: 표정의 극적인 변화와 조명의 다이나믹한 전환. 사물을 꺼내어 내려놓는 물리적 상호작용의 디테일 확보.
 Prompt 2:
 REFERENCE INSTRUCTION: @image1 or last frame of Clip 1.
-OUTPUT SPECS: 4s, vertical 9:16.
+OUTPUT SPECS: 3s, vertical 9:16.
 CINEMATOGRAPHY: Medium close-up, slight cinematic slow zoom-in on her face to emphasize emotion.
 ENVIRONMENT: Same cozy clinic desk.
 CHARACTER DESIGN: Same anthropomorphic white duck Somi character, professional light-blue uniform.
@@ -125,26 +125,26 @@ STRICT RULES (CRITICAL): The disco ball must rest solidly on the desk surface. P
 🎥 영상 프롬프트 마스터 세트: '[Catchy Title]'
 비디오 생성 AI의 '환각 현상(신체 융합, 텍스트 깨짐)'을 최소화하고, 시네마틱한 퀄리티를 얻기 위한 프롬프트입니다.
 
-🎬 CLIP 1: [0-4초] [Scene Title]
+🎬 CLIP 1: [0-2초] [Scene Title]
 목표: [Specific goal for Clip 1]
 Prompt 1:
 REFERENCE INSTRUCTION: @image1 = First frame reference. Preserve exact face, proportions, and identity. Do NOT stylize.
-OUTPUT SPECS: 4s, vertical 9:16.
+OUTPUT SPECS: 2s, vertical 9:16.
 CINEMATOGRAPHY: [Detailed camera movement and depth of field. Do NOT write just "Static shot". Use full sentences.]
 ENVIRONMENT: [Describe the locked background matching LOCKED_ENVIRONMENT. Need multiple sentences.]
 CHARACTER DESIGN: [Describe the character, outfit, and anatomically strict rules. Need multiple sentences.]
-ACTION: [EXTREMELY detailed description of actions, micro-expressions, object interactions for 0-4s. Minimum 3 sentences.]
+ACTION: [EXTREMELY detailed description of actions, micro-expressions, object interactions for 0-2s. Minimum 3 sentences.]
 STRICT RULES (CRITICAL): [Anatomical boundaries. NO CLIPPING through solid objects. Need multiple sentences.]
 
-🎬 CLIP 2: [4-8초] [Scene Title]
+🎬 CLIP 2: [2-5초] [Scene Title]
 목표: [Specific goal for Clip 2]
 Prompt 2:
 REFERENCE INSTRUCTION: @image1 or last frame of Clip 1.
-OUTPUT SPECS: 4s, vertical 9:16.
+OUTPUT SPECS: 3s, vertical 9:16.
 CINEMATOGRAPHY: [Detailed camera movement and depth of field.]
 ENVIRONMENT: [Same background, highlight any lighting changes]
 CHARACTER DESIGN: [Same character]
-ACTION: [EXTREMELY detailed description of actions, micro-expressions, object interactions for 4-8s. Minimum 3 sentences.]
+ACTION: [EXTREMELY detailed description of actions, micro-expressions, object interactions for 2-5s. Minimum 3 sentences.]
 STRICT RULES (CRITICAL): [Anatomical boundaries. NO CLIPPING]
 
 `;
