@@ -30,7 +30,7 @@ export default function MainApp() {
     { id: 'post', label: '블로그', icon: <PenLine className="w-5 h-5 md:w-5 md:h-5" /> },
     { id: 'scenario', label: '시나리오', icon: <FileText className="w-5 h-5 md:w-5 md:h-5" /> },
     { id: 'thumbnail', label: '썸네일', icon: <ImageIcon className="w-5 h-5 md:w-5 md:h-5" /> },
-    { id: 'video', label: '영상 제작', icon: <Film className="w-5 h-5 md:w-5 md:h-5" /> },
+    { id: 'video', label: '영상 편집', icon: <Film className="w-5 h-5 md:w-5 md:h-5" /> },
   ] as const;
 
   return (
@@ -99,7 +99,7 @@ export default function MainApp() {
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto relative bg-[#fffcf8] pb-16 md:pb-0 flex flex-col">
         <AnimatePresence mode="wait">
-          <motion.div
+          {activeTab !== 'video' && <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -111,9 +111,9 @@ export default function MainApp() {
             {activeTab === 'post' && <BlogPost />}
             {activeTab === 'scenario' && <ScenarioPlanner />}
             {activeTab === 'thumbnail' && <InstaThumbnail />}
-            {activeTab === 'video' && <VideoEditor />}
-          </motion.div>
+          </motion.div>}
         </AnimatePresence>
+        <VideoEditor visible={activeTab === 'video'} />
       </main>
 
       {/* Mobile Bottom Navigation */}
