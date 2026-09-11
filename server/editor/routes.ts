@@ -11,6 +11,11 @@ import { spokenNumbers } from '../../src/editor/speech';
 import { getFirestore } from 'firebase-admin/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
+// Busboy emits partsLimit as soon as the count reaches the limit. Three valid
+// parts (plan, video, voice) therefore need a boundary of four; file/field limits
+// still reject anything beyond the two files and one field we accept.
+export const editorUpload = (dir: string) => multer({ dest: dir, limits: { files: 2, fileSize: 26 * 1024 * 1024, fields: 1, fieldSize: 32000, parts: 4 } }).fields([{ name: 'videos', maxCount: 1 }, { name: 'voice', maxCount: 1 }]);
+
 export function wav(pcm: Buffer) {
   if (!pcm.length || pcm.length % 2 || pcm.length > 24000 * 2 * 60) throw Error('음성 응답의 길이가 올바르지 않습니다.');
   const h = Buffer.alloc(44); h.write('RIFF'); h.writeUInt32LE(pcm.length + 36, 4); h.write('WAVEfmt ', 8); h.writeUInt32LE(16, 16); h.writeUInt16LE(1, 20); h.writeUInt16LE(1, 22); h.writeUInt32LE(24000, 24); h.writeUInt32LE(48000, 28); h.writeUInt16LE(2, 32); h.writeUInt16LE(16, 34); h.write('data', 36); h.writeUInt32LE(pcm.length, 40);
@@ -83,7 +88,7 @@ editorRouter.post(['/render','/transcribe'], async (req, res) => {
   const cancel = () => { if (!res.writableFinished) abort.abort(); }; res.on('close', cancel);
   try {
     dir = await mkdtemp(path.join(os.tmpdir(), 'ori-edit-'));
-    const upload = multer({ dest: dir, limits: { files: 2, fileSize: 26 * 1024 * 1024, fields: 1, fieldSize: 32000, parts: 3 } }).fields([{ name: 'videos', maxCount: 1 }, { name: 'voice', maxCount: 1 }]);
+    const upload = editorUpload(dir);
     await new Promise<void>((resolve, reject) => {
       const stopped = () => { cleanup(); reject(Error('업로드가 중단되었습니다.')); };
       const cleanup = () => { req.off('aborted', stopped); abort.signal.removeEventListener('abort', stopped); };
