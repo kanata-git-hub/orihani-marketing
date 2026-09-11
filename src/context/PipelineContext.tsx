@@ -20,6 +20,8 @@ interface PipelineState {
   sharedImagePrompt: string;
   sharedVideoPrompt: string;
   sharedCharacters: string[];
+  sharedScenarioId: string;
+  setSharedScenarioId: (id: string) => void;
   
   setSharedTopic: (topic: string) => void;
   setSharedTreatment: (treatment: string) => void;
@@ -43,6 +45,7 @@ interface PipelineState {
 const PipelineContext = createContext<PipelineState | undefined>(undefined);
 
 export function PipelineProvider({ children }: { children: ReactNode }) {
+  const [sharedScenarioId, setSharedScenarioId] = useState('');
   const [activeTab, setActiveTab] = useState('topic');
   const [sharedTopic, setSharedTopic] = useState('');
   const [sharedTreatment, setSharedTreatment] = useState('');
@@ -65,6 +68,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
   return (
     <PipelineContext.Provider value={{
       activeTab, setActiveTab,
+      sharedScenarioId, setSharedScenarioId,
       sharedTopic, setSharedTopic,
       sharedTreatment, setSharedTreatment,
       sharedFormat, setSharedFormat,
