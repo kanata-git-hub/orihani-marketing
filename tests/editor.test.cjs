@@ -11,7 +11,7 @@ const {spokenNumbers,parseWords,alignCaptions,scheduleNarration,placedWords}=req
 const {validateMediaSizes,validateMediaDuration,clipLengths}=require(path.join(compiled,'src/editor/media.js'));
 const {draftWriter}=require(path.join(compiled,'src/editor/storage.js'));
 const {subtitles,render,command,inspect}=require(path.join(compiled,'server/editor/render.js'));
-const {audioResponse,editorRouter}=require(path.join(compiled,'server/editor/routes.js'));
+const {audioResponse,editorRouter,editorUpload}=require(path.join(compiled,'server/editor/routes.js'));
 const record=(rawPlan,id='one')=>({id,title:'블로그 제목',rawPlan,videoPrompt:'OUTPUT SPECS: 2s\nOUTPUT SPECS: 3s',createdAt:1,imagePrompt:''});
 const raw=`🎬 제목: 피곤한 아침 / Tired morning
 🖼️ 썸네일 텍스트: 배터리 1% / Battery one percent
@@ -54,6 +54,17 @@ test('WAV response contains all returned PCM blocks',()=>{
 });
 test('title and caption positions/font match meme editor and title stops at 1 second',()=>{
  const ass=subtitles({...defaultPlan(),thumbnail:'첫 제목',captions:[{start:0,end:5,text:'{\\pos(0,0)} 1% 자막'}]});assert.match(ass,/Kyobo Handwriting 2024/);assert.match(ass,/pos\(540,480\)/);assert.match(ass,/pos\(540,1440\)/);assert.match(ass,/0:00:00.00,0:00:01.00,Title/);assert.ok(!ass.includes('{\\pos(0,0)}'));assert.throws(()=>validatePlan({...defaultPlan(),captions:[{start:0,end:3,text:'가'},{start:2,end:5,text:'나'}]}));
+});
+test('browser multipart accepts plan plus video and voice while rejecting extra fields and files',async()=>{
+ const express=require('express'),app=express(),dir=fs.mkdtempSync(path.join(compiled,'upload-'));
+ app.post('/upload',editorUpload(dir),(req,res)=>res.json({plan:req.body.plan,files:Object.keys(req.files).sort()}));
+ app.use((err,req,res,next)=>res.status(400).json({error:err.code}));
+ const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+ const send=async(extra)=>{const data=new FormData();data.append('plan','{"duration":5}');data.append('videos',new Blob(['video']), 'clip.mp4');data.append('voice',new Blob(['audio']), 'narration.wav');extra?.(data);return fetch(`http://127.0.0.1:${server.address().port}/upload`,{method:'POST',body:data});};
+ try{const good=await send();assert.equal(good.status,200);assert.deepEqual(await good.json(),{plan:'{"duration":5}',files:['videos','voice']});
+  assert.equal((await send(data=>data.append('extra','value'))).status,400);
+  assert.equal((await send(data=>data.append('videos',new Blob(['extra']),'extra.mp4'))).status,400);
+ }finally{await new Promise(r=>server.close(r));fs.rmSync(dir,{recursive:true,force:true});}
 });
 test('new editor APIs reject unauthenticated calls',async()=>{
  const express=require('express'),app=express();app.use('/api/editor',editorRouter);const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));try{for(const endpoint of ['voice','render','transcribe']){const res=await fetch(`http://127.0.0.1:${server.address().port}/api/editor/${endpoint}`,{method:'POST'});assert.equal(res.status,401);}}finally{await new Promise(r=>server.close(r));}
