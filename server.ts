@@ -2,7 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
-import { GoogleGenAI, GenerateVideosOperation } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
+
+import { editorRouter } from "./server/editor/routes";
 
 dotenv.config({ override: true });
 
@@ -11,6 +13,7 @@ async function startServer() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
   app.use(cors());
+  app.use("/api/editor", editorRouter);
   app.use(express.json({ limit: "50mb" }));
 
   // Exponential Backoff API proxy example
@@ -47,83 +50,9 @@ async function startServer() {
     }
   });
 
-  app.post("/api/generateVideos", async (req, res) => {
-    try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("GEMINI_API_KEY is missing.");
-      }
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateVideos(req.body);
-      return res.json(response);
-    } catch (error: any) {
-      console.error("Error calling generateVideos:", error);
-      res.status(error.status || 500).json({ error: error.message });
-    }
-  });
-
-  app.post("/api/getVideosOperation", async (req, res) => {
-    try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("GEMINI_API_KEY is missing.");
-      }
-      const ai = new GoogleGenAI({ apiKey });
-      
-      const operationName = req.body.operation?.name || req.body.name;
-      const op = new GenerateVideosOperation();
-      op.name = operationName;
-      
-      const response = await ai.operations.getVideosOperation({ operation: op });
-      return res.json(response);
-    } catch (error: any) {
-      console.error("Error calling getVideosOperation:", error);
-      res.status(error.status || 500).json({ error: error.message });
-    }
-  });
-
-  // Proxy to download the actual video file
-  app.post("/api/downloadVideo", async (req, res) => {
-    try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("GEMINI_API_KEY is missing.");
-      }
-      let { uri } = req.body;
-      if (!uri) {
-        throw new Error("Video URI is missing.");
-      }
-      
-      // Ensure we download the media bytes instead of the JSON metadata
-      if (uri.includes('googleapis.com') && !uri.includes('alt=media')) {
-        const u = new URL(uri);
-        u.searchParams.append('alt', 'media');
-        uri = u.toString();
-      }
-      
-      const response = await fetch(uri, {
-        method: 'GET',
-        headers: {
-          'x-goog-api-key': apiKey,
-        },
-      });
-      
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Failed to fetch video from Google: ${errText}`);
-      }
-      
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      
-      res.setHeader('Content-Type', 'video/mp4');
-      res.setHeader('Content-Length', buffer.length);
-      return res.send(buffer);
-      
-    } catch (error: any) {
-      console.error("Error downloading video:", error);
-      res.status(500).json({ error: error.message });
-    }
+  // Old browser tabs must not start another paid Veo job.
+  app.post(['/api/generateVideos', '/api/getVideosOperation', '/api/downloadVideo'], (_req, res) => {
+    res.status(410).json({ error: 'Veo 제작 기능은 종료되었습니다. 영상 편집에서 Kling의 5초 영상을 넣어주세요. 기존 영상 기록은 계속 다운로드할 수 있습니다.' });
   });
 
   // Vite middleware for development
