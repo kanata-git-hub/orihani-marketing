@@ -30,6 +30,7 @@ import { compressImage, generateSecondImage } from '../utils/canvasUtils';
 import { useApiKey } from '../hooks/useApiKey';
 import { downloadFile } from '../utils/downloadUtils';
 import { CHARACTERS } from '../constants';
+import { loadReferenceImage, MAX_REFERENCE_IMAGES } from '../characterReference';
 
 declare global {
   interface Window {
@@ -116,11 +117,14 @@ export default function InstaThumbnail() {
 
     if (charIdsToLoad.length > 0) {
       const loadChars = async () => {
-        setReferenceImages([]); // clear
-        for (const charId of charIdsToLoad) {
-          await handleSelectCharacter(charId);
-        }
-        setHasAutoLoadedChars(true);
+        setIsAutoLoadingRefs(true);
+        setReferenceImages([]);
+        try {
+          const groups = await Promise.all(charIdsToLoad.map(loadCharacterReferences));
+          setReferenceImages(groups.flat());
+          setHasAutoLoadedChars(true);
+        } catch (e) { setError(e instanceof Error ? e.message : '캐릭터 원본 사진을 불러오지 못했습니다.'); }
+        finally { setIsAutoLoadingRefs(false); }
       };
       loadChars();
     }
@@ -165,7 +169,6 @@ export default function InstaThumbnail() {
   };
 
   const loadDefaultReferences = async () => {
-    setIsAutoLoadingRefs(true);
     
     try {
       const res = await fetch('/icon.png');
@@ -184,7 +187,6 @@ export default function InstaThumbnail() {
       console.warn("Failed to load logo", e);
     }
 
-    setIsAutoLoadingRefs(false);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,52 +206,30 @@ export default function InstaThumbnail() {
     setReferenceImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const loadCharacterReferences = async (characterId: string): Promise<RefImage[]> => {
+    const char = CHARACTERS.find(c => c.id === characterId);
+    if (!char) throw Error('캐릭터 원본 사진을 찾지 못했습니다.');
+    const views = ['Front View', 'Side View', 'Back View'];
+    return Promise.all(char.imgs.map(async (url, i) => ({url: await loadReferenceImage(url), label: `${char.name} (${views[i]})`})));
+  };
+
   const handleSelectCharacter = async (characterId: string) => {
     setIsAutoLoadingRefs(true);
-    const char = CHARACTERS.find(c => c.id === characterId);
-    if (!char) {
-      setIsAutoLoadingRefs(false);
-      return;
-    }
-    
-    const newRefs: RefImage[] = [];
-    for (const url of char.imgs) {
-      if (url.startsWith('data:')) {
-        newRefs.push({ url, label: char.name });
-      } else {
-        try {
-          const response = await fetch(url);
-          if (response.ok) {
-            const blob = await response.blob();
-            const reader = new FileReader();
-            const dataUrl = await new Promise<string>((resolve) => {
-              reader.onloadend = () => resolve(reader.result as string);
-              reader.readAsDataURL(blob);
-            });
-            newRefs.push({ url: dataUrl, label: char.name });
-          }
-        } catch (e) {
-          console.warn("Failed to load char image", e);
-        }
-      }
-    }
-    
-    // Append instead of replacing
-    setReferenceImages(prev => {
-      const merged = [...prev];
-      for (const ref of newRefs) {
-        if (!merged.find(r => r.url === ref.url)) {
-          merged.push(ref);
-        }
-      }
-      return merged;
-    });
-    setIsAutoLoadingRefs(false);
+    try {
+      const newRefs = await loadCharacterReferences(characterId);
+      setReferenceImages(prev => [...prev, ...newRefs.filter(ref => !prev.some(r => r.url === ref.url))]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '캐릭터 원본 사진을 불러오지 못했습니다.');
+    } finally { setIsAutoLoadingRefs(false); }
   };
 
 
   const handleGenerate = async () => {
     if (!title) return;
+    if (isAutoLoadingRefs) { setError('캐릭터 원본 사진을 불러오는 중입니다. 잠시 기다려주세요.'); return; }
+    if (!referenceImages.length && (sharedCharacters?.length || /오원장|소미|간호사|덕이|o[- ]?wonjang|somi|deok[- ]?i/i.test(localImagePrompt))) {
+      setError('이 장면의 캐릭터 원본 사진을 먼저 불러와주세요. 원본 없이 생성하지 않습니다.'); return;
+    }
     setIsGenerating(true);
     setError(null);
     setIsEditing(false);
@@ -301,7 +281,7 @@ Action: The character must be the central focus, executing the action described 
         promptsToGenerate = [basePrompt];
       }
 
-      const limitedRefs = referenceImages.slice(0, 9);
+      const limitedRefs = referenceImages;
       const totalPayloadSize = limitedRefs.reduce((acc, img) => acc + img.url.length, 0);
       console.log(`Generating image with ${limitedRefs.length} reference images. Total payload size: ${(totalPayloadSize / 1024 / 1024).toFixed(2)} MB`);
 
@@ -311,8 +291,9 @@ Action: The character must be the central focus, executing the action described 
         let currentRefs: (string | RefImage)[] = [...limitedRefs];
 
         if (i > 0 && generatedResults.length > 0) {
-          currentRefs.unshift(generatedResults[i - 1]);
-          currentPrompt = `[MAINTAIN ENVIRONMENT CONSISTENCY]\nThe very first provided reference image is the PREVIOUS SCENE. If the environment/location in this prompt is the same as the previous scene, you MUST perfectly replicate the background, lighting, and general setting from that first reference image to maintain continuity.\n\n` + currentPrompt;
+          if (currentRefs.length < MAX_REFERENCE_IMAGES) {
+            currentRefs.push({ url: generatedResults[i - 1], role: 'scene' });
+          }
         }
 
         const result = await generateImage({
@@ -320,7 +301,7 @@ Action: The character must be the central focus, executing the action described 
           prompt: currentPrompt,
           aspectRatio: selectedRatio,
           imageSize: selectedSize,
-          referenceImages: currentRefs.slice(0, 9), // Keep it within any potential limits
+          referenceImages: currentRefs, // Original character sheets always remain attached.
         });
         if (result) {
           generatedResults.push(result);
@@ -465,6 +446,7 @@ Action: The character must be the central focus, executing the action described 
                     <button 
                       key={c.id} 
                       onClick={() => handleSelectCharacter(c.id)}
+                      disabled={isAutoLoadingRefs || isGenerating}
                       className="flex text-xs items-center gap-2 pr-3 py-1 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
                     >
                       <img src={c.img} alt={c.name} className="w-6 h-6 rounded-full object-cover bg-gray-100" />
@@ -650,7 +632,7 @@ Action: The character must be the central focus, executing the action described 
                     setActiveTabLocal('result');
                     await handleGenerate();
                   }}
-                  disabled={isGenerating || !title || !isApiKeySet}
+                  disabled={isGenerating || isAutoLoadingRefs || !title || !isApiKeySet}
                   className="flex-1 bg-black text-white h-14 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-gray-800 disabled:opacity-50 transition-all shadow-lg shadow-black/10"
                 >
                   {isGenerating && !isEditing ? <RefreshCw className="animate-spin w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
@@ -662,7 +644,7 @@ Action: The character must be the central focus, executing the action described 
                       setActiveTabLocal('result');
                       await handleEdit();
                     }}
-                    disabled={isGenerating || !title}
+                    disabled={isGenerating || isAutoLoadingRefs || !title}
                     className="w-14 h-14 bg-gray-100 text-gray-600 border border-gray-200 rounded-2xl flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition-all"
                     title="재편집"
                   >
