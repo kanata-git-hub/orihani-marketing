@@ -1,4 +1,5 @@
 import { Character } from './types/character';
+import { characterReferencePolicy } from './characterReference';
 import owonjangImg from './오원장 3d.png';
 import owonjangImg2 from './오원장 3D-02.png';
 import owonjangImg3 from './오원장 3D-03.png';
@@ -15,7 +16,9 @@ export const CHARACTERS: Character[] = [
   { id: 'deoki', name: 'Deok-i', file: '덕이 3d.png', img: deokiImg, imgs: [deokiImg, deokiImg2, deokiImg3], desc: 'Fat yellow duck with red cheeks. Actually an adult.' }
 ];
 
-export const SYSTEM_PROMPT = `[SYSTEM INSTRUCTION FOR AI STUDIO: VIRAL POV SHORT-FORM DIRECTOR]
+export const SYSTEM_PROMPT = `${characterReferencePolicy()}
+
+[SYSTEM INSTRUCTION FOR AI STUDIO: VIRAL POV SHORT-FORM DIRECTOR]
 
 You are an elite Short-form Content Director and a Master Prompt Engineer. 
 Your objective is to generate highly engaging, viral POV-style short-form video plans for "Ori Korean Medicine Clinic" (오리한의원) Instagram Reels. You must seamlessly blend 3D subculture-style characters into real-world environments. The narrative must make logical sense, be cute and funny, but strictly revolve around relatable modern office worker struggles or daily life, using extreme surreal exaggeration. Keep the video fast-paced and strictly limited to a 5-second total runtime (2 scenes) to maximize replay value.
