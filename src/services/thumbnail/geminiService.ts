@@ -1,14 +1,12 @@
 import { GenerateContentResponse } from "@google/genai";
 import { getGeminiClient } from '../geminiClient';
+import { buildReferenceParts, CharacterReference } from '../../characterReference';
 
 export type ImageModel = 'gemini-3.1-flash-image';
 export type ImageSize = '512px' | '1K' | '2K' | '4K';
 export type AspectRatio = '1:1' | '3:4' | '4:3' | '9:16' | '16:9';
 
-export interface RefImage {
-  url: string;
-  label?: string;
-}
+export interface RefImage extends CharacterReference {}
 
 interface GenerationOptions {
   model: ImageModel;
@@ -24,39 +22,7 @@ export const generateImage = async (options: GenerationOptions): Promise<string 
 
   const ai = getGeminiClient();
 
-  // 이미지 파트들을 먼저 넣고 텍스트 지시사항을 마지막에 배치 (모델 인식률 향상)
-  const parts: any[] = [];
-  
-  referenceImages.forEach((imgItem, index) => {
-    let img = '';
-    let label = '';
-    
-    if (typeof imgItem === 'string') {
-      img = imgItem;
-    } else {
-      img = imgItem.url;
-      label = imgItem.label || '';
-    }
-
-    if (label) {
-      parts.push({ text: `Reference image for subject/character: ${label}` });
-    } else {
-      parts.push({ text: `Reference image ${index + 1}:` });
-    }
-
-    const mimeTypeMatch = img.match(/^data:(image\/[a-zA-Z0-9.-]+);base64,/);
-    const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : "image/png";
-    const base64Data = img.includes(',') ? img.split(',')[1] : img;
-
-    parts.push({
-      inlineData: {
-        mimeType: mimeType,
-        data: base64Data
-      }
-    });
-  });
-
-  parts.push({ text: prompt });
+  const parts = buildReferenceParts(referenceImages, prompt);
 
   const config: any = {
     imageConfig: {

@@ -19,3 +19,4 @@ jobs:
       - run: npm test
         env:
           FFMPEG_PATH: ffmpeg
+      - run: node --test tests/character-reference.test.cjs
