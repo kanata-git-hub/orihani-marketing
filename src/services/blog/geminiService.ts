@@ -13,6 +13,7 @@ export interface BlogGenerationResult {
   youtubeTtsScript: string;
   youtubeTitle: string;
   youtubeHashtags: string;
+  youtubeNarration?: string;
   sources?: { uri: string; title: string }[];
 }
 
