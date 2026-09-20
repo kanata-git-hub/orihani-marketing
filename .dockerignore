@@ -3,3 +3,7 @@ dist
 .env
 .git
 .editor-test
+
+server-dist
+.env.*
+*.log

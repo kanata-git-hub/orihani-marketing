@@ -5,39 +5,45 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --outfile=dist/server.cjs",
-    "start": "NODE_ENV=production node --max-old-space-size=256 dist/server.cjs",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --outfile=server-dist/server.cjs",
+    "start": "NODE_ENV=production node --max-old-space-size=256 server-dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "test": "node --test tests/editor.test.cjs"
+    "test": "node --test tests/editor.test.cjs",
+    "test:security": "node --experimental-strip-types --test tests/security.test.ts tests/generation-security.test.ts tests/auth-fetch.test.cjs tests/blog-html-security.test.cjs",
+    "test:rules": "node --test tests/firestore-security.cjs"
   },
   "dependencies": {
     "@google/genai": "^1.46.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "cors": "^2.8.6",
+    "dompurify": "^3.4.15",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "firebase": "^12.12.0",
+    "firebase-admin": "^14.3.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.546.0",
+    "multer": "^2.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.18.1",
-    "firebase-admin": "^14.3.0",
-    "multer": "^2.3.0"
+    "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jsdom": "^30.0.0",
+    "@types/multer": "^2.2.0",
     "@types/node": "^22.14.0",
     "esbuild": "^0.28.1",
+    "jsdom": "^30.1.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
-    "@types/multer": "^2.2.0"
+    "@firebase/rules-unit-testing": "^5.0.0"
   }
 }
