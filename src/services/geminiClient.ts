@@ -1,9 +1,10 @@
+import { authFetch } from '../authFetch';
 // Replace client SDK with API proxy call
 export const getGeminiClient = (apiKey?: string) => {
   return {
     models: {
       generateContent: async (params: any) => {
-        const response = await fetch('/api/generate', {
+        const response = await authFetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(params)

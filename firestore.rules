@@ -1,26 +1,36 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'kanata840@gmail.com';
+    function signedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
     }
-    
-    match /{document=**} {
-      allow read, write: if false;
+    function isAdmin() { return signedIn() && request.auth.token.email == 'kanata840@gmail.com'; }
+    function approvalMatches(id) {
+      return id is string && id.size() > 0 && id.size() < 1500 && !id.matches('.*[/].*') &&
+        get(/databases/$(database)/documents/approved_users/$(id)).data.email == request.auth.token.email;
     }
-
-    match /approved_users/{userId} {
-      allow read: if request.auth != null;
+    function isApproved() {
+      return isAdmin() || (signedIn() && approvalMatches(
+        get(/databases/$(database)/documents/approved_access/$(request.auth.uid)).data.approvalId));
+    }
+    match /{document=**} { allow read, write: if false; }
+    match /approved_users/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.email == request.auth.token.email);
       allow write: if isAdmin();
     }
-    
-    match /blog_history/{documentId} {
-      allow read, write: if request.auth != null;
+    // A checked reference retains existing auto-ID approvals. Deleting the source approval revokes access.
+    match /approved_access/{uid} {
+      allow read, delete: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.keys().hasOnly(['approvalId']) && approvalMatches(request.resource.data.approvalId);
     }
-    
-    // Add logic for user-owned content
-    match /user_content/{documentId} {
-      allow read, write: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid) || isAdmin();
+    // Shared clinic history is intentionally shared among approved users.
+    match /blog_history/{id} { allow read, write: if isApproved(); }
+    match /user_content/{id} {
+      allow create: if isAdmin() || (isApproved() && request.resource.data.userId == request.auth.uid);
+      allow read, delete: if isAdmin() || (isApproved() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin() || (isApproved() && resource.data.userId == request.auth.uid &&
+        request.resource.data.userId == resource.data.userId);
     }
   }
 }

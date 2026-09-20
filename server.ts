@@ -1,3 +1,5 @@
+import { safeGeneration } from './safeGeneration.ts';
+import { requireUser } from './serverSecurity.ts';
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -14,10 +16,14 @@ async function startServer() {
 
   app.use(cors());
   app.use("/api/editor", editorRouter);
+  app.use('/api/generate', requireUser);
   app.use(express.json({ limit: "50mb" }));
 
   // Exponential Backoff API proxy example
   app.post("/api/generate", async (req, res) => {
+    let generationRequest;
+    try { generationRequest = safeGeneration(req.body); }
+    catch { res.status(400).json({ error: '지원하지 않는 AI 요청 설정입니다.' }); return; }
     try {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
@@ -31,7 +37,7 @@ async function startServer() {
       
       while (retries > 0) {
         try {
-          const response = await ai.models.generateContent(req.body);
+          const response = await ai.models.generateContent(generationRequest);
           // Return both text and the raw response, or whatever the client needs
           return res.json({ text: response.text, ...response });
         } catch (error: any) {

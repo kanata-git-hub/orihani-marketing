@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import { auth, db } from "../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
 
 interface AuthContextType {
   user: User | null;
@@ -36,6 +36,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const q = query(collection(db, "approved_users"), where("email", "==", currentUser.email));
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {
+              // Preserve existing approval documents and shared history without an admin migration.
+              await setDoc(doc(db, 'approved_access', currentUser.uid), { approvalId: querySnapshot.docs[0].id }).catch(error => {
+                // Rolling upgrades may serve the previous rules briefly; existing login still works.
+                if (error.code !== 'permission-denied') throw error;
+                console.warn('Approval reference is waiting for the updated Firestore rules.');
+              });
               setIsAdmin(false);
               setUser(currentUser);
               setLoading(false);
