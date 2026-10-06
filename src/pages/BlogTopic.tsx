@@ -3,7 +3,7 @@ import { Play, Loader2, CheckCircle, AlertCircle, RefreshCw, MessageSquare, User
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { runMultiAgentSystem } from '../services/topic/multiAgent';
-import { buildBlogTreatmentBrief, type TopicMode } from '../services/topic/topicPolicy';
+import { buildBlogTreatmentBrief, restoreTopicMode, type TopicMode } from '../services/topic/topicPolicy';
 import { usePipeline } from '../context/PipelineContext';
 
 import { AgentLog, FinalOutput } from '../types/agent';
@@ -14,7 +14,7 @@ export default function BlogTopic() {
   
   const [isRunning, setIsRunning] = useState(false);
   const [topicMode, setTopicMode] = useState<TopicMode>(() =>
-    localStorage.getItem('topicMode') === 'all' ? 'all' : 'dyspepsia'
+    restoreTopicMode(localStorage.getItem('topicMode'))
   );
   const [logs, setLogs] = useState<AgentLog[]>([]);
   const [result, setResult] = useState<FinalOutput | null>(() => {
@@ -143,6 +143,7 @@ export default function BlogTopic() {
             className="rounded-lg border border-[#e8dfd1] bg-white px-3 py-2 disabled:opacity-50"
           >
             <option value="dyspepsia">만성 소화불량 집중</option>
+            <option value="fatigue">만성 피로 집중</option>
             <option value="all">전체 분야</option>
           </select>
           <p className="text-[#552c24]/70">같은 질환, 다른 불편과 질문으로 기획합니다.</p>

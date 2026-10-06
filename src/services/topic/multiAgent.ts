@@ -2,7 +2,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { AgentLog, AgentResponse, FinalOutput } from '../../types/agent';
 import { callAgent } from '../core/agentRunner';
-import { DUPLICATE_POLICY, DYSPEPSIA_FOCUS, isDuplicatePlan, isWithinTopicFocus, selectTopicCategory, type TopicMode } from './topicPolicy';
+import { focusedDisease, isDuplicatePlan, isWithinTopicFocus, selectTopicCategory, topicInstructions, type TopicMode } from './topicPolicy';
 import { 
   TOPIC_CRAWLER_PROMPT, 
   TOPIC_JSON_PROCESSOR_PROMPT, 
@@ -76,7 +76,8 @@ export const runMultiAgentSystem = async (
   const today = currentDate.toLocaleDateString('ko-KR');
   
   const randomCategory = selectTopicCategory(topicMode, previousCategory);
-  const topicInstructions = topicMode === 'dyspepsia' ? DYSPEPSIA_FOCUS : DUPLICATE_POLICY;
+  const focusInstructions = topicInstructions(topicMode);
+  const focusDisease = focusedDisease(topicMode);
 
   const { text: recentHistoryText, data: recentHistoryData } = await fetchRecentHistory(currentDate);
   
@@ -116,7 +117,7 @@ export const runMultiAgentSystem = async (
       type: 'working'
     });
     
-    const crawlerPrompt = `기준일: ${today}\n대분류: ${randomCategory}\n\n${topicInstructions}\n\n[최근 1개월 기획 내역]\n${recentHistoryText}\n\n위 범위 내에서 핵심 질문 하나를 선정하고 관련 키워드와 자료를 수집하세요.\n\n${reviewerFeedbackHistory}`;
+    const crawlerPrompt = `기준일: ${today}\n대분류: ${randomCategory}\n\n${focusInstructions}\n\n[최근 1개월 기획 내역]\n${recentHistoryText}\n\n위 범위 내에서 핵심 질문 하나를 선정하고 관련 키워드와 자료를 수집하세요.\n\n${reviewerFeedbackHistory}`;
     const crawlerOutput = await callAgent(
       TOPIC_CRAWLER_PROMPT, 
       crawlerPrompt, 
@@ -173,7 +174,7 @@ export const runMultiAgentSystem = async (
       type: 'working'
     });
     
-    const plannerPrompt = `${topicInstructions}\n\n[최근 1개월 기획 내역 (질환 반복 허용, 같은 질문·설명 재사용 금지)]\n${recentHistoryText}\n\n[타겟 질환 카테고리]: ${randomCategory}\n\n[가공된 리서치 데이터]\n${jsonOutput}\n\n${reviewerFeedbackHistory}`;
+    const plannerPrompt = `${focusInstructions}\n\n[최근 1개월 기획 내역 (질환 반복 허용, 같은 질문·설명 재사용 금지)]\n${recentHistoryText}\n\n[타겟 질환 카테고리]: ${randomCategory}\n\n[가공된 리서치 데이터]\n${jsonOutput}\n\n${reviewerFeedbackHistory}`;
     const plannerOutput = await callAgent(
       TOPIC_PLANNER_PROMPT, 
       plannerPrompt, 
@@ -202,7 +203,7 @@ export const runMultiAgentSystem = async (
       type: 'working'
     });
     
-    const reviewerPrompt = `${topicInstructions}\n\n[최근 1개월 기획 내역]\n${recentHistoryText}\n\n[기획 작성자의 기획안]\n${plannerOutput}\n\n[누적 피드백/지시사항]\n${reviewerFeedbackHistory}\n\n같은 질환이라는 이유로 감점하지 마세요. 기존 글과 핵심 질문·답변이 같으면 표현이 달라도 90점 미만으로 반려하세요. finalTreatment에는 치료 이름뿐 아니라 권장 치료를 고려할 조건과 확인할 생활 변화, 선택 근거를 포함하세요. 이 기획안을 평가하고 합격(90점 이상) 시 요약본과 메타데이터 JSON을 출력하세요.`;
+    const reviewerPrompt = `${focusInstructions}\n\n[최근 1개월 기획 내역]\n${recentHistoryText}\n\n[기획 작성자의 기획안]\n${plannerOutput}\n\n[누적 피드백/지시사항]\n${reviewerFeedbackHistory}\n\n같은 질환이라는 이유로 감점하지 마세요. 기존 글과 핵심 질문·답변이 같으면 표현이 달라도 90점 미만으로 반려하세요. finalTreatment에는 치료 이름뿐 아니라 권장 치료를 고려할 조건과 확인할 생활 변화, 선택 근거를 포함하세요. 이 기획안을 평가하고 합격(90점 이상) 시 요약본과 메타데이터 JSON을 출력하세요.`;
     const reviewerOutput = await callAgent(
       TOPIC_REVIEWER_PROMPT, 
       reviewerPrompt, 
@@ -239,11 +240,11 @@ export const runMultiAgentSystem = async (
     }
 
     if (!isWithinTopicFocus(parsedReviewer, topicMode)) {
-      reviewerFeedbackHistory += '\n\n[주제 반려]: 만성 소화불량 집중 모드입니다. 다른 질환으로 바꾸지 말고 이 질환 안에서 새로운 질문을 선정하세요.';
-      if (globalAttempt > maxGlobalRetries) throw new Error('만성 소화불량 기획을 얻지 못했습니다. 질문을 바꾸어 다시 시도해 주세요.');
+      reviewerFeedbackHistory += `\n\n[주제 반려]: ${focusDisease} 집중 모드입니다. 다른 질환으로 바꾸지 말고 이 질환 안에서 새로운 질문을 선정하세요.`;
+      if (globalAttempt > maxGlobalRetries) throw new Error(`${focusDisease} 기획을 얻지 못했습니다. 질문을 바꾸어 다시 시도해 주세요.`);
       continue;
     }
-    if (topicMode === 'dyspepsia') parsedReviewer.disease = '만성 소화불량';
+    if (focusDisease) parsedReviewer.disease = focusDisease;
 
     const isDuplicate = isDuplicatePlan(parsedReviewer, recentHistoryData);
 

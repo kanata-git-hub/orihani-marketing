@@ -26,6 +26,11 @@ const plan = (situation = '조금만 먹어도 배가 차 식사를 남긴다') 
   disease: '만성 소화불량', situation, treatments: ['한약', '침']
 });
 
+const fatiguePlan = (situation = '퇴근 후 피로 때문에 집안일을 미룬다') => ({
+  ...plan(situation), disease: '만성 피로', finalTopic: '퇴근 후 생활을 포기할 만큼 피곤할 때',
+  finalTreatment: '맞춤 한약 상담에서 피로의 경과를 살피고 일상 활동의 변화를 확인한다.'
+});
+
 function pipeline(reviewers, history = []) {
   const calls = [];
   let round = 0;
@@ -108,4 +113,33 @@ test('exhausted duplicate retries fail instead of returning the duplicate as app
 test('exhausted low-score or malformed reviews do not yield an approved plan', async () => {
   await assert.rejects(pipeline([{ ...plan(), score: 60 }]).run(), /검수를 통과하지/);
   await assert.rejects(pipeline(['invalid JSON']).run(), /기획 결과를 확인할 수 없습니다/);
+});
+
+test('fatigue mode persists and remains distinct from dyspepsia, insomnia and ME/CFS', () => {
+  assert.equal(policy.restoreTopicMode('fatigue'), 'fatigue');
+  assert.equal(policy.restoreTopicMode(null), 'dyspepsia');
+  assert.equal(policy.selectTopicCategory('fatigue', '만성 소화불량 집중'), '만성 피로 집중');
+  for (const disease of ['만성 소화불량', '입면장애', '만성피로증후군']) {
+    assert.equal(policy.isWithinTopicFocus({ disease }, 'fatigue'), false);
+  }
+  assert.equal(policy.isWithinTopicFocus({ disease: '만성피로' }, 'fatigue'), true);
+});
+
+test('fatigue retries an insomnia topic without switching to the dyspepsia campaign', async () => {
+  const app = pipeline([{ ...fatiguePlan(), disease: '입면장애' }, fatiguePlan()]);
+  const result = await app.run(undefined, '만성 소화불량 집중', 'fatigue');
+  assert.equal(result.disease, '만성 피로');
+  assert.equal(result.category, '만성 피로 집중');
+  assert.equal(result.topicMode, 'fatigue');
+  assert.equal(app.calls.length, 8);
+});
+
+test('fatigue allows new questions but retries an existing fatigue angle', async () => {
+  const old = { ...fatiguePlan(), disease: '만성피로' };
+  const next = fatiguePlan('주말마다 쉬기만 하느라 약속을 포기한다');
+  const app = pipeline([fatiguePlan(), next], [old]);
+  const result = await app.run(undefined, undefined, 'fatigue');
+  assert.equal(result.situation, next.situation);
+  assert.equal(result.disease, '만성 피로');
+  assert.equal(app.calls.length, 8);
 });
