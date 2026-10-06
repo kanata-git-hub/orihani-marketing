@@ -3,6 +3,7 @@ import { Play, Loader2, CheckCircle, AlertCircle, RefreshCw, MessageSquare, User
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { runMultiAgentSystem } from '../services/topic/multiAgent';
+import { buildBlogTreatmentBrief, restoreTopicMode, type TopicMode } from '../services/topic/topicPolicy';
 import { usePipeline } from '../context/PipelineContext';
 
 import { AgentLog, FinalOutput } from '../types/agent';
@@ -12,6 +13,9 @@ export default function BlogTopic() {
   const { setActiveTab: setGlobalActiveTab, setSharedTopic, setSharedTreatment, setSharedFormat, setSharedDisease, setSharedTarget, setSharedSituation, setSharedTreatments } = usePipeline();
   
   const [isRunning, setIsRunning] = useState(false);
+  const [topicMode, setTopicMode] = useState<TopicMode>(() =>
+    restoreTopicMode(localStorage.getItem('topicMode'))
+  );
   const [logs, setLogs] = useState<AgentLog[]>([]);
   const [result, setResult] = useState<FinalOutput | null>(() => {
     try {
@@ -47,7 +51,7 @@ export default function BlogTopic() {
   }, [isWaitingForUser]);
 
   
-  const handleStart = async (feedback?: string, previousCategory?: string) => {
+  const handleStart = async (feedback?: string, previousCategory?: string, mode: TopicMode = topicMode) => {
     setIsRunning(true);
     setError(null);
     setResult(null);
@@ -56,7 +60,7 @@ export default function BlogTopic() {
     try {
       const output = await runMultiAgentSystem((log) => {
         setLogs(prev => [...prev, log]);
-      }, feedback, previousCategory);
+      }, feedback, previousCategory, mode);
       setResult(output);
       setIsWaitingForUser(true);
     } catch (err) {
@@ -70,14 +74,7 @@ export default function BlogTopic() {
     if (!result) return;
     setSharedTopic(result.disease || '');
     
-    let treatmentText = result.finalTopic || '';
-    if (result.treatments && result.treatments.length > 0) {
-      treatmentText += '\n추가 치료법: ' + result.treatments.join(', ');
-    } else if (result.finalTreatment) {
-      treatmentText += '\n추가 치료법: ' + result.finalTreatment;
-    }
-    
-    setSharedTreatment(treatmentText);
+    setSharedTreatment(buildBlogTreatmentBrief(result));
     setSharedFormat(result.format || '');
     if (result.disease) setSharedDisease(result.disease);
     if (result.target) setSharedTarget(result.target);
@@ -92,7 +89,7 @@ export default function BlogTopic() {
       alert("반려 사유(피드백)를 입력해주세요.");
       return;
     }
-    handleStart(userFeedbackInput, result?.category);
+    handleStart(userFeedbackInput, result?.category, result?.topicMode ?? 'all');
     setUserFeedbackInput("");
   };
 
@@ -132,6 +129,25 @@ export default function BlogTopic() {
       </header>
 
       <main className="max-w-4xl mx-auto w-full px-4 md:px-6 py-4 flex flex-col flex-1 overflow-hidden gap-4 min-h-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0 text-sm text-[#552c24]">
+          <label htmlFor="topic-mode" className="font-bold">기획 주제</label>
+          <select
+            id="topic-mode"
+            value={topicMode}
+            disabled={isRunning}
+            onChange={event => {
+              const next = event.target.value as TopicMode;
+              setTopicMode(next);
+              localStorage.setItem('topicMode', next);
+            }}
+            className="rounded-lg border border-[#e8dfd1] bg-white px-3 py-2 disabled:opacity-50"
+          >
+            <option value="dyspepsia">만성 소화불량 집중</option>
+            <option value="fatigue">만성 피로 집중</option>
+            <option value="all">전체 분야</option>
+          </select>
+          <p className="text-[#552c24]/70">같은 질환, 다른 불편과 질문으로 기획합니다.</p>
+        </div>
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-4 md:p-6 flex items-start gap-4 text-red-800 shrink-0">
             <AlertCircle className="w-6 h-6 shrink-0 mt-0.5" />

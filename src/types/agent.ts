@@ -27,6 +27,7 @@ export interface FinalOutput {
   situation?: string;
   treatments?: string[];
   category?: string;
+  topicMode?: 'dyspepsia' | 'fatigue' | 'all';
   
   // Temporary legacy fallbacks, can eventually be removed if completely unused
   ceo?: AgentResponse;
