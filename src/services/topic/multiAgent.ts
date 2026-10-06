@@ -2,6 +2,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { AgentLog, AgentResponse, FinalOutput } from '../../types/agent';
 import { callAgent } from '../core/agentRunner';
+import { DUPLICATE_POLICY, DYSPEPSIA_FOCUS, isDuplicatePlan, isWithinTopicFocus, selectTopicCategory, type TopicMode } from './topicPolicy';
 import { 
   TOPIC_CRAWLER_PROMPT, 
   TOPIC_JSON_PROCESSOR_PROMPT, 
@@ -42,7 +43,7 @@ async function fetchNetworkTime(onProgress?: (log: AgentLog) => void): Promise<D
 }
 
 async function fetchRecentHistory(currentDate: Date): Promise<{ text: string, data: any[] }> {
-  let recentHistoryText = "최근 1개월 발행 내역 없음.";
+  let recentHistoryText = "최근 1개월 기획·초안 내역 없음.";
   let recentHistoryData: any[] = [];
   try {
     const oneMonthAgo = new Date(currentDate);
@@ -56,7 +57,7 @@ async function fetchRecentHistory(currentDate: Date): Promise<{ text: string, da
     if (!querySnapshot.empty) {
       recentHistoryData = querySnapshot.docs.map(doc => doc.data());
       recentHistoryText = recentHistoryData.map((data, index) => 
-        `[${index + 1}] 질환/부위: ${data.disease || '미상'}, 타겟: ${data.target}, 상황: ${data.situation}, 치료법: ${data.treatments.join(', ')}`
+        `[${index + 1}] 질환/부위: ${data.disease || '미상'}, 타겟: ${data.target}, 상황: ${data.situation}, 치료법: ${Array.isArray(data.treatments) ? data.treatments.join(', ') : '미상'}`
       ).join('\n');
     }
   } catch (error) {
@@ -65,37 +66,17 @@ async function fetchRecentHistory(currentDate: Date): Promise<{ text: string, da
   return { text: recentHistoryText, data: recentHistoryData };
 }
 
-function checkDuplicatePlan(parsedReviewer: any, recentHistoryData: any[]): boolean {
-  if (!(parsedReviewer.score >= 90 && parsedReviewer.disease && parsedReviewer.situation)) {
-    return false;
-  }
-  for (const history of recentHistoryData) {
-    if (history.disease === parsedReviewer.disease && history.situation === parsedReviewer.situation) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export const runMultiAgentSystem = async (
   onProgress: (log: AgentLog) => void,
   userFeedback?: string,
-  previousCategory?: string
+  previousCategory?: string,
+  topicMode: TopicMode = 'dyspepsia'
 ): Promise<FinalOutput> => {
   const currentDate = await fetchNetworkTime(onProgress);
   const today = currentDate.toLocaleDateString('ko-KR');
   
-  const categories = [
-    '근골격계 및 통증 (목, 허리, 무릎, 관절염 등)',
-    '내과 및 소화기 (소화불량, 과민성 대장 증후군, 위염 등)',
-    '만성피로 및 보약 (경옥고, 공진단, 수험생 보약 등)',
-    '여성질환 (갱년기, 월경불순, 다낭성 난소증후군, 난임, 생리통 등)', 
-    '피부질환 (여드름, 아토피, 다한증 등)',
-    '다이어트 및 비만 관리',
-    '교통사고 후유증 및 재활',
-    '건강상식 (수면, 식습관, 스트레스 관리, 면역력 등)'
-  ];
-  const randomCategory = previousCategory || categories[Math.floor(Math.random() * categories.length)];
+  const randomCategory = selectTopicCategory(topicMode, previousCategory);
+  const topicInstructions = topicMode === 'dyspepsia' ? DYSPEPSIA_FOCUS : DUPLICATE_POLICY;
 
   const { text: recentHistoryText, data: recentHistoryData } = await fetchRecentHistory(currentDate);
   
@@ -109,7 +90,7 @@ export const runMultiAgentSystem = async (
     id: Date.now().toString() + Math.random(),
     timestamp: Date.now(),
     agentName: 'System',
-    message: `[오늘의 집중 기획 대분류]: ${randomCategory}\n\n[최근 1개월 발행 이력]\n${recentHistoryText}`,
+    message: `[오늘의 집중 기획 대분류]: ${randomCategory}\n\n[최근 1개월 기획·초안 이력]\n${recentHistoryText}`,
     type: 'success'
   });
 
@@ -135,7 +116,7 @@ export const runMultiAgentSystem = async (
       type: 'working'
     });
     
-    const crawlerPrompt = `기준일: ${today}\n대분류: ${randomCategory}\n\n위 대분류 내에서 단일 질환 또는 구체적인 건강상식 소재를 하나만 뾰족하게 선정하고 관련 키워드와 트렌드를 마구 수집하세요.\n\n${reviewerFeedbackHistory}`;
+    const crawlerPrompt = `기준일: ${today}\n대분류: ${randomCategory}\n\n${topicInstructions}\n\n[최근 1개월 기획 내역]\n${recentHistoryText}\n\n위 범위 내에서 핵심 질문 하나를 선정하고 관련 키워드와 자료를 수집하세요.\n\n${reviewerFeedbackHistory}`;
     const crawlerOutput = await callAgent(
       TOPIC_CRAWLER_PROMPT, 
       crawlerPrompt, 
@@ -192,7 +173,7 @@ export const runMultiAgentSystem = async (
       type: 'working'
     });
     
-    const plannerPrompt = `[최근 1개월 기획 내역 (중복 절대 금지)]\n${recentHistoryText}\n\n[타겟 질환 카테고리]: ${randomCategory}\n\n[가공된 리서치 데이터]\n${jsonOutput}\n\n${reviewerFeedbackHistory}`;
+    const plannerPrompt = `${topicInstructions}\n\n[최근 1개월 기획 내역 (질환 반복 허용, 같은 질문·설명 재사용 금지)]\n${recentHistoryText}\n\n[타겟 질환 카테고리]: ${randomCategory}\n\n[가공된 리서치 데이터]\n${jsonOutput}\n\n${reviewerFeedbackHistory}`;
     const plannerOutput = await callAgent(
       TOPIC_PLANNER_PROMPT, 
       plannerPrompt, 
@@ -221,7 +202,7 @@ export const runMultiAgentSystem = async (
       type: 'working'
     });
     
-    const reviewerPrompt = `[기획 작성자의 기획안]\n${plannerOutput}\n\n[누적 피드백/지시사항]\n${reviewerFeedbackHistory}\n\n이 기획안을 평가하고 합격(90점 이상) 시 요약본과 메타데이터 JSON을 출력하세요.`;
+    const reviewerPrompt = `${topicInstructions}\n\n[최근 1개월 기획 내역]\n${recentHistoryText}\n\n[기획 작성자의 기획안]\n${plannerOutput}\n\n[누적 피드백/지시사항]\n${reviewerFeedbackHistory}\n\n같은 질환이라는 이유로 감점하지 마세요. 기존 글과 핵심 질문·답변이 같으면 표현이 달라도 90점 미만으로 반려하세요. finalTreatment에는 치료 이름뿐 아니라 권장 치료를 고려할 조건과 확인할 생활 변화, 선택 근거를 포함하세요. 이 기획안을 평가하고 합격(90점 이상) 시 요약본과 메타데이터 JSON을 출력하세요.`;
     const reviewerOutput = await callAgent(
       TOPIC_REVIEWER_PROMPT, 
       reviewerPrompt, 
@@ -246,32 +227,36 @@ export const runMultiAgentSystem = async (
         }
       }
       parsedReviewer = JSON.parse(jsonString.trim());
+      if (!parsedReviewer || typeof parsedReviewer.score !== 'number' || !Number.isFinite(parsedReviewer.score) ||
+          !['content', 'finalTopic', 'finalTreatment', 'disease', 'situation'].every(key =>
+            typeof parsedReviewer[key] === 'string' && parsedReviewer[key].trim())) {
+        throw new Error('기획 메타데이터 누락');
+      }
     } catch(e) {
-      parsedReviewer = { 
-        content: reviewerOutput, 
-        score: 90, 
-        feedback: "파싱 실패로 텍스트 승인",
-        finalTopic: "미정",
-        finalTreatment: "미정 (파싱 오류)",
-        format: "치료형",
-        disease: "미정",
-        target: "미정",
-        situation: "미정",
-        treatments: []
-      };
+      reviewerFeedbackHistory += '\n\n[형식 반려]: score와 content, finalTopic, finalTreatment, disease, situation을 빠짐없이 유효한 JSON으로 작성하세요.';
+      if (globalAttempt > maxGlobalRetries) throw new Error('기획 결과를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+      continue;
     }
 
-    const isDuplicate = checkDuplicatePlan(parsedReviewer, recentHistoryData);
+    if (!isWithinTopicFocus(parsedReviewer, topicMode)) {
+      reviewerFeedbackHistory += '\n\n[주제 반려]: 만성 소화불량 집중 모드입니다. 다른 질환으로 바꾸지 말고 이 질환 안에서 새로운 질문을 선정하세요.';
+      if (globalAttempt > maxGlobalRetries) throw new Error('만성 소화불량 기획을 얻지 못했습니다. 질문을 바꾸어 다시 시도해 주세요.');
+      continue;
+    }
+    if (topicMode === 'dyspepsia') parsedReviewer.disease = '만성 소화불량';
+
+    const isDuplicate = isDuplicatePlan(parsedReviewer, recentHistoryData);
 
     if (isDuplicate) {
       onProgress({
         id: Date.now().toString() + Math.random(),
         timestamp: Date.now(),
         agentName: 'System',
-        message: `[중복 기획 감지] 질환/부위/소재(${parsedReviewer.disease})와 상황(${parsedReviewer.situation})이 최근 1개월 내에 이미 발행되었습니다. 기획을 반려하고 다시 시작합니다.`,
+        message: `[중복 기획 감지] 질환/부위/소재(${parsedReviewer.disease})와 상황(${parsedReviewer.situation})이 최근 1개월 내에 이미 기획·초안으로 저장되었습니다. 기획을 반려하고 다시 시작합니다.`,
         type: 'error'
       });
-      reviewerFeedbackHistory += `\n\n[자동 중복 반려 사유]: 질환/부위/소재(${parsedReviewer.disease}) 및 상황(${parsedReviewer.situation}) 조합은 최근 1개월 내에 이미 포스팅했습니다. 완전히 다른 질환이나 상황으로 다시 시도하세요.`;
+      reviewerFeedbackHistory += `\n\n[자동 중복 반려 사유]: 질환/부위/소재(${parsedReviewer.disease}) 및 상황(${parsedReviewer.situation}) 조합은 최근 1개월 내에 이미 기획·초안으로 저장했습니다. 현재 질환을 유지하고 다른 생활 제약이나 핵심 질문을 다루세요. 표현만 바꾸는 것은 금지합니다.`;
+      if (globalAttempt > maxGlobalRetries) throw new Error('기존 글과 다른 기획을 찾지 못했습니다. 다른 질문으로 다시 시도해 주세요.');
       continue;
     }
 
@@ -283,9 +268,10 @@ export const runMultiAgentSystem = async (
       type: parsedReviewer.score >= 90 ? 'success' : 'error'
     });
 
-    if (parsedReviewer.score >= 90 || globalAttempt > maxGlobalRetries) {
+    if (parsedReviewer.score >= 90) {
       break;
     } else {
+      if (globalAttempt > maxGlobalRetries) throw new Error('검수를 통과하지 못했습니다. 피드백을 보완해 다시 시도해 주세요.');
       reviewerFeedbackHistory += `\n\n[${globalAttempt}차 검수자 반려 사유]:\n${parsedReviewer.feedback}`;
     }
   }
@@ -318,6 +304,7 @@ export const runMultiAgentSystem = async (
     target: parsedReviewer.target || "타겟 미정",
     situation: parsedReviewer.situation || "상황 미정",
     treatments: parsedReviewer.treatments || [],
-    category: randomCategory
+    category: randomCategory,
+    topicMode
   };
 };
