@@ -3,19 +3,8 @@ import data2 from "../../data/data2.md?raw";
 import data3 from "../../data/data3.md?raw";
 
 import { getGeminiClient } from '../geminiClient';
-
-export interface BlogGenerationResult {
-  blog: string;
-  imageSuggestion?: string;
-  instaTitle: string;
-  instaContent: string;
-  videoScript: string[];
-  youtubeTtsScript: string;
-  youtubeTitle: string;
-  youtubeHashtags: string;
-  youtubeNarration?: string;
-  sources?: { uri: string; title: string }[];
-}
+import { parseBlogResponse, type BlogGenerationResult } from '../../utils/pipelineParsing';
+export type { BlogGenerationResult } from '../../utils/pipelineParsing';
 
 const UTM_LINK_INSTRUCTION = ``;
 
@@ -494,38 +483,7 @@ export async function generateBlogPost(
   }
 
   const text = response.text || '';
-  
-  const imageSuggestionMatch = text.match(/\[Part 0: Image Suggestion\]\n([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 1:|$)/);
-  const blogMatch = text.match(/\[Part 1: Naver Blog Post\]\n([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 2:|$)/);
-  const instaTitleMatch = text.match(/Insta Title:\s*(.*)/);
-  const instaContentMatch = text.match(/Insta Content:\s*([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 3:|$)/);
-  const videoScriptMatch = text.match(/Video Script:\n([\s\S]*?)(?=\n(?:---|###|\s)*\[Part 4:|$)/);
-  const youtubeTtsScriptMatch = text.match(/\[Part 4: YouTube TTS Script\]\s*([\s\S]*?)(?=(?:---|###|\s)*\[Part 5:|$)/i);
-  const youtubeTitleMatch = text.match(/YouTube Title:\s*(.*)/);
-  const youtubeHashtagsMatch = text.match(/YouTube Hashtags:\s*(.*)/);
-  const youtubeNarrationMatch = text.match(/YouTube Narration:\s*(.*)/);
-
-  const imageSuggestion = imageSuggestionMatch ? imageSuggestionMatch[1].trim() : '';
-  const blog = blogMatch ? blogMatch[1].trim() : text;
-  const instaTitle = instaTitleMatch ? instaTitleMatch[1].trim() : '';
-  let instaContent = instaContentMatch ? instaContentMatch[1].trim() : '';
-  
-  // Clean up any leaked markdown separators at the end of instaContent
-  instaContent = instaContent.replace(/(?:\n|^)(?:---|###)[\s\S]*$/, '').trim();
-  
-  let youtubeTtsScript = youtubeTtsScriptMatch ? youtubeTtsScriptMatch[1].trim() : '';
-  youtubeTtsScript = youtubeTtsScript.replace(/<생각>[\s\S]*?<\/생각>\s*/gi, '').replace(/(?:---|###|\s)*$/, '').trim();
-  const youtubeTitle = youtubeTitleMatch ? youtubeTitleMatch[1].trim() : '';
-  const youtubeHashtags = youtubeHashtagsMatch ? youtubeHashtagsMatch[1].trim() : '';
-  const youtubeNarration = youtubeNarrationMatch ? youtubeNarrationMatch[1].trim().replace(/^["']|["']$/g, "") : '';
-
-  let videoScript: string[] = [];
-  if (videoScriptMatch) {
-    videoScript = videoScriptMatch[1]
-      .split('\n')
-      .filter(line => line.trim().match(/^\d+\./))
-      .map(line => line.replace(/^\d+\.\s*/, '').trim());
-  }
+  const parsed = parseBlogResponse(text, topic);
 
   let sources;
   if (mode === 'info' && response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
@@ -537,5 +495,5 @@ export async function generateBlogPost(
       }));
   }
 
-  return { blog, instaTitle, instaContent, videoScript, youtubeTtsScript, youtubeTitle, youtubeHashtags, youtubeNarration, sources, imageSuggestion };
+  return { ...parsed, sources };
 }

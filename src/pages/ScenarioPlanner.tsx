@@ -6,6 +6,7 @@ import { useApiKey } from '../hooks/useApiKey';
 import { CHARACTERS, SYSTEM_PROMPT } from '../constants';
 import { getGeminiClient } from '../services/geminiClient';
 import { loadScenarioHistory, saveScenarioHistory, ScenarioHistoryItem } from '../hooks/useScenarioHistory';
+import { canSaveScenario, parseScenarioResponse } from '../utils/pipelineParsing';
 
 export default function ScenarioPlanner() {
   const { 
@@ -78,43 +79,21 @@ Follow the system instructions to plan the visual scenario.`;
       });
 
       const text = response.text || '';
+      const parsed = parseScenarioResponse(text, CHARACTERS);
+      if (!canSaveScenario(parsed.imagePrompt, parsed.videoPrompt)) {
+        throw new Error('시나리오에서 썸네일 또는 비디오 프롬프트를 읽지 못했습니다. 생성 버튼을 다시 눌러주세요.');
+      }
       setRawPlan(text);
-      
-      let finalChars: string[] = [];
-      let finalImgPrompt: string = '';
-      let finalVideoPrompt: string = '';
-
-      // Parse Characters
-      const charMatch = text.match(/-\s+\*\*출연 캐릭터:\*\*(.*)/);
-      if (charMatch) {
-        const charsString = charMatch[1].toLowerCase();
-        const detectedChars = CHARACTERS.filter(c => charsString.includes(c.id)).map(c => c.id);
-        if (detectedChars.length > 0) {
-          finalChars = detectedChars;
-          setLocalCharacters(detectedChars);
-        }
-      }
-
-            // Parse Image Prompt
-      const imageSectionMatch = text.match(/(?:### )?1\. Image.*?([\s\S]*?)(?=(?:### )?2\. Video|$)/i);
-      if (imageSectionMatch) {
-         finalImgPrompt = imageSectionMatch[1].trim();
-         setLocalImagePrompt(finalImgPrompt);
-      }
-
-      // Parse Video Prompt
-      const videoSectionMatch = text.match(/(?:### )?2\. Video.*?([\s\S]*)/i);
-      if (videoSectionMatch) {
-         finalVideoPrompt = videoSectionMatch[1].trim();
-         setLocalVideoPrompt(finalVideoPrompt);
-      }
+      setLocalCharacters(parsed.characters);
+      setLocalImagePrompt(parsed.imagePrompt);
+      setLocalVideoPrompt(parsed.videoPrompt);
 
       const newItem: ScenarioHistoryItem = {
         id: Date.now().toString(),
         title: sharedTitle || 'Untitled Scenario',
         rawPlan: text,
-        imagePrompt: finalImgPrompt,
-        videoPrompt: finalVideoPrompt,
+        imagePrompt: parsed.imagePrompt,
+        videoPrompt: parsed.videoPrompt,
         createdAt: Date.now()
       };
       
@@ -135,14 +114,18 @@ Follow the system instructions to plan the visual scenario.`;
   };
 
   const loadHistoryItem = (item: ScenarioHistoryItem) => {
+    const parsed = parseScenarioResponse(item.rawPlan || '', CHARACTERS);
     setSharedScenarioId(item.id);
     setRawPlan(item.rawPlan || '');
     setLocalImagePrompt(item.imagePrompt || '');
     setLocalVideoPrompt(item.videoPrompt || '');
+    setLocalCharacters(parsed.characters);
+    setError(null);
     setActiveTabLocal('thumbnail');
   };
 
   const handleSaveAndNext = () => {
+    if (isGenerating || !canSaveScenario(localImagePrompt, localVideoPrompt)) return;
     setSharedImagePrompt(localImagePrompt);
     setSharedVideoPrompt(localVideoPrompt);
     setSharedCharacters(localCharacters);
@@ -171,7 +154,7 @@ Follow the system instructions to plan the visual scenario.`;
             </button>
             <button 
               onClick={handleSaveAndNext}
-              disabled={!rawPlan && history.length === 0}
+              disabled={isGenerating || !canSaveScenario(localImagePrompt, localVideoPrompt)}
               className="flex items-center justify-center gap-2 bg-[#ffcd4a] text-[#552c24] px-5 py-2 rounded-xl text-sm font-bold shadow-md hover:bg-[#ffe180] transition-all disabled:opacity-50 min-w-[80px]"
             >
               <Check className="w-4 h-4" />
