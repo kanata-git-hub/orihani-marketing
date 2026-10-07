@@ -7,6 +7,7 @@ import { usePipeline } from '../context/PipelineContext';
 import { generateBlogPost, BlogGenerationResult, getTreatmentPrompt, getInfoPrompt } from '../services/blog/geminiService';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { restoreBlogResult } from '../utils/pipelineParsing';
 
 
 interface HistoryItem {
@@ -78,16 +79,17 @@ export default function BlogPost() {
   };
 
   const loadFromHistory = (item: HistoryItem) => {
+    const restoredResult = restoreBlogResult(item.result, item.topic);
     setMode(item.mode);
     setTopic(item.topic);
     setTreatment(item.treatment);
-    setResult(item.result);
+    setResult(restoredResult);
     
-    if (item.result) {
-      setSharedTitle(item.result.instaTitle || '');
-      setSharedInstaContent(item.result.instaContent || '');
-      setSharedScript(item.result.videoScript || []);
-      const combinedBlogContent = item.result.imageSuggestion ? `[이미지 삽입 제안: ${item.result.imageSuggestion}]\n\n${item.result.blog}` : (item.result.blog || ""); setSharedBlogContent(combinedBlogContent);
+    if (restoredResult) {
+      setSharedTitle(restoredResult.instaTitle || '');
+      setSharedInstaContent(restoredResult.instaContent || '');
+      setSharedScript(restoredResult.videoScript || []);
+      const combinedBlogContent = restoredResult.imageSuggestion ? `[이미지 삽입 제안: ${restoredResult.imageSuggestion}]\n\n${restoredResult.blog}` : (restoredResult.blog || ""); setSharedBlogContent(combinedBlogContent);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
