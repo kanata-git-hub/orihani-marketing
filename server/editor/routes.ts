@@ -71,7 +71,7 @@ editorRouter.post('/voice', express.json({ limit: '16kb' }), async (req, res) =>
     // Never automatically retry a paid generation request.
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
       method: 'POST', headers: { 'x-goog-api-key': process.env.GEMINI_API_KEY, 'Content-Type': 'application/json' }, signal: AbortSignal.any([abort.signal, AbortSignal.timeout(100000)]),
-      body: JSON.stringify({ model: process.env.EDITOR_TTS_MODEL || 'gemini-3.1-flash-tts-preview', input: `한국어 나레이션. ${style}\n가능하면 ${duration}초 안에 자연스럽게 읽으세요. 지시문은 읽지 말고 다음 대본만 정확하게 읽으세요.\n<대본>\n${text}\n</대본>`, response_format: { type: 'audio', sample_rate: 24000 }, generation_config: { speech_config: [{ voice }] } })
+      body: JSON.stringify({ model: process.env.EDITOR_TTS_MODEL || 'gemini-3.8-flash-tts', input: [{ type: 'user_input', content: [{ type: 'text', text, annotations: [{ type: 'speech_metadata', style: `한국어 나레이션. ${style}\n가능하면 ${duration}초 안에 자연스럽게 읽으세요.` }] }] }], response_format: { type: 'audio', mime_type: 'audio/l16', sample_rate: 24000 }, generation_config: { speech_config: [{ voice }] } })
     });
     if (!response.ok) { console.error('Editor TTS HTTP status', response.status); res.status(502).json({ error: `음성 생성 서비스가 응답하지 않았습니다(${response.status}). 자동 재시도하지 않았습니다.` }); return; }
     const result = await response.json();
