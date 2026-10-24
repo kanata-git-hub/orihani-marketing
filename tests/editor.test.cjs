@@ -82,3 +82,13 @@ test('actual five-second rendering preserves source audio, mixes voice and handl
  const preserved=await command(ff,['-ss','1.6','-t','0.2','-i','finished.mp4','-vn','-af','astats','-f','null','-'],dir);assert.match(preserved,/RMS level dB: -(?!inf)\d/);
  await command(ff,['-y','-i','source.mp4','-an','-c:v','copy','silent.mp4'],dir);await render({...plan,narration:''},[path.join(dir,'silent.mp4')],undefined,dir);assert.ok((await inspect('finished.mp4',dir)).audio);
 });
+
+test('Nooni speech never becomes narration TTS',()=>{
+ for(const name of ['눈이','Nooni','nooni']){
+  const plan=importEpisode({duration:5,korean:'해설: 오늘은 덥다.\n'+name+': "아이스크림 드세요."',scenario:''});
+  assert.equal(plan.narration,'오늘은 덥다.');
+  assert.ok(plan.captions.some(c=>c.source==='dialogue'&&c.text==='아이스크림 드세요.'));
+ }
+ const source=marketingSource(record('🎙️ 나레이션 (TTS): 오늘은 덥다.\n눈이: "아이스크림 드세요."'));
+ assert.equal(source.plan.narration,'오늘은 덥다.');
+});

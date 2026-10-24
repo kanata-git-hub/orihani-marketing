@@ -1,3 +1,4 @@
+import { characterIdsInText } from '../characterReference';
 export interface BlogGenerationResult {
   blog: string;
   imageSuggestion?: string;
@@ -110,11 +111,12 @@ export function parseScenarioResponse(text: string, characters: { id: string; na
     }
   }
   const canonical = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const namedIds = characterIdsInText(characterText);
   const castIds = (characterText.match(/[a-z]+(?:-[a-z]+)*/gi) || []).map(canonical);
   return {
     imagePrompt: trimSection(sections.get(1) || []),
     videoPrompt: trimSection(sections.get(2) || []),
-    characters: characters.filter(c => castIds.some(id => id === canonical(c.id) || id === canonical(c.name))).map(c => c.id),
+    characters: characters.filter(c => namedIds.includes(c.id) || castIds.some(id => id === canonical(c.id) || id === canonical(c.name))).map(c => c.id),
   };
 }
 

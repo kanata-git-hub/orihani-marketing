@@ -116,7 +116,7 @@ export function VideoEditor({ visible, sourceId }: { visible: boolean; sourceId?
     setMessage('영상 길이와 파일을 확인 중입니다. 아직 유료 분석은 시작하지 않았습니다.');
     for(let i=0;i<lengths.length;i++)validateMediaDuration(await mediaDuration(d.videos[i]!,'video'),lengths[i],i);
     if(d.plan.importWarning)throw Error(d.plan.importWarning);
-    if(/(?:Dialog(?:ue)?|오원장|소미|덕이)\s*[:：]/i.test(d.plan.narration))throw Error('읽을 대본에 등장인물 대사가 있습니다. 해설만 남겨주세요.');
+    if(/(?:Dialog(?:ue)?|오원장|소미|덕이|눈이|Nooni)\s*[:：]/i.test(d.plan.narration))throw Error('읽을 대본에 등장인물 대사가 있습니다. 해설만 남겨주세요.');
     let working={...d};let originalWords:Word[]=[];let offset=0;
     for(let i=0;i<lengths.length;i++){setMessage(`Kling 대사 시간 확인 중 · ${i+1}/${lengths.length}`);const words=await analyze(d.videos[i]!,lengths[i]);originalWords.push(...words.map(w=>({...w,start:Math.min(offset+lengths[i],w.start+offset),end:Math.min(offset+lengths[i],w.end+offset)})).filter(w=>w.end>w.start));offset+=lengths[i];}
     let dialogue=d.plan.captions.filter(c=>c.source==='dialogue');

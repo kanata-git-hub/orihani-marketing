@@ -15,7 +15,7 @@ export function marketingSource(item: ScenarioHistoryItem): MarketingSource {
   };
   const title = koreanOnly(field('(?:🎬\\s*)?제목')) || item.title;
   const thumbnail = koreanOnly(field('썸네일\\s*텍스트'));
-  const ttsMatch = raw.match(/(?:^|\n)[^\n]*?(?:나레이션|내레이션)\s*(?:\(TTS\))?[ \t]*[:：][ \t]*([^\n]*(?:\n(?!(?:[ \t]*(?:[-*]\s*)?(?:[🎬🖼📱💬🏷#]|장면|자막|화면|Dialog|오원장|소미|덕이)))[^\n]+)*)/i);
+  const ttsMatch = raw.match(/(?:^|\n)[^\n]*?(?:나레이션|내레이션)\s*(?:\(TTS\))?[ \t]*[:：][ \t]*([^\n]*(?:\n(?!(?:[ \t]*(?:[-*]\s*)?(?:[🎬🖼📱💬🏷#]|장면|자막|화면|Dialog|오원장|소미|덕이|눈이|Nooni)))[^\n]+)*)/i);
   const tts = ttsMatch ? ttsMatch[1].trim() : '';
   const narration = koreanOnly(tts);
   const noNarration = /^(?:없음|없습니다|사용 안 함|none)(?:[.!\s]*(?:\(|$))/i.test(narration);

@@ -9,7 +9,7 @@ function load(file, imports = {}) {
   const code = ts.transpileModule(fs.readFileSync(path.join(__dirname, '..', file), 'utf8'), {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true }
   }).outputText;
-  new Function('require', 'module', 'exports', code)(name => name in imports ? imports[name] : require(name), module, module.exports);
+  new Function('require', 'module', 'exports', code)(name => name in imports ? imports[name] : name.startsWith('.') ? load(path.join(path.dirname(file), name)+'.ts',imports) : require(name), module, module.exports);
   return module.exports;
 }
 const parsing = load('src/utils/pipelineParsing.ts');
@@ -199,4 +199,10 @@ test('actual UI restores the broken draft, generates a scenario and saves prompt
     for (const [key, value] of previous) value === undefined ? delete global[key] : global[key] = value;
     dom.window.close();
   }
+});
+
+test('Nooni is recognized in Korean and English cast declarations',()=>{
+ const catalog=[...chars,{id:'nooni',name:'눈이 (Nooni)'}];
+ for(const name of ['nooni','Nooni','눈이'])assert.deepEqual(parseScenarioResponse('0. Planning\n출연 캐릭터: '+name+'\n1. Image\nNooni.\n2. Video\nNooni.',catalog).characters,['nooni']);
+ assert.deepEqual(parseScenarioResponse('0. Planning\n출연 캐릭터: deoki\n눈이 내린다.\n1. Image\nSnow.\n2. Video\nSnow.',catalog).characters,['deoki']);
 });

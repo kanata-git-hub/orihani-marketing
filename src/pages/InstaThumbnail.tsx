@@ -30,7 +30,7 @@ import { compressImage, generateSecondImage } from '../utils/canvasUtils';
 import { useApiKey } from '../hooks/useApiKey';
 import { downloadFile } from '../utils/downloadUtils';
 import { CHARACTERS } from '../constants';
-import { loadReferenceImage, MAX_REFERENCE_IMAGES } from '../characterReference';
+import { loadReferenceImage, MAX_REFERENCE_IMAGES, characterIdsInText } from '../characterReference';
 
 declare global {
   interface Window {
@@ -109,10 +109,7 @@ export default function InstaThumbnail() {
     if (sharedCharacters && sharedCharacters.length > 0) {
       charIdsToLoad = sharedCharacters;
     } else if (sharedImagePrompt) {
-      const text = sharedImagePrompt.toLowerCase();
-      if (text.includes('o-wonjang') || text.includes('owonjang') || text.includes('오원장')) charIdsToLoad.push('owonjang');
-      if (text.includes('somi') || text.includes('간호사') || text.includes('소미')) charIdsToLoad.push('somi');
-      if (text.includes('deok-i') || text.includes('deoki') || text.includes('덕이')) charIdsToLoad.push('deoki');
+      charIdsToLoad = characterIdsInText(sharedImagePrompt);
     }
 
     if (charIdsToLoad.length > 0) {
@@ -227,7 +224,7 @@ export default function InstaThumbnail() {
   const handleGenerate = async () => {
     if (!title) return;
     if (isAutoLoadingRefs) { setError('캐릭터 원본 사진을 불러오는 중입니다. 잠시 기다려주세요.'); return; }
-    if (!referenceImages.length && (sharedCharacters?.length || /오원장|소미|간호사|덕이|o[- ]?wonjang|somi|deok[- ]?i/i.test(localImagePrompt))) {
+    if (!referenceImages.length && (sharedCharacters?.length || characterIdsInText(localImagePrompt).length)) {
       setError('이 장면의 캐릭터 원본 사진을 먼저 불러와주세요. 원본 없이 생성하지 않습니다.'); return;
     }
     setIsGenerating(true);
@@ -242,7 +239,7 @@ export default function InstaThumbnail() {
 The images provided alongside this prompt are EXACT reference sheets for the 3D subculture characters you must draw. 
 - You MUST preserve their exact 3D simplistic toy style, facial proportions, and visual identity.
 - DO NOT draw a generic duck or a realistic duck. You must perfectly replicate the smooth, stylized 3D mascot design shown in the references.
-- DO NOT give them human skin, human mouths, or human teeth. They have seamless smooth duck bills and distinct facial expressions as shown in the images.
+- DO NOT give them human skin, human mouths, or human teeth. The duck characters retain their smooth duck bills; Nooni retains the tiny dark pointed bird beak, original patterned wings, bird feet and long tail. Preserve each original face.
 - Re-create these specific characters faithfully in the new action and environment requested below.`
         : DEFAULT_CHARACTER;
 

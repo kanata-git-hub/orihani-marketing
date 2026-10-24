@@ -1,3 +1,7 @@
+import { NOONI_PROFILE } from './nooni';
+import nooniImg from './nooni 01.png';
+import nooniImg2 from './nooni 02.png';
+import nooniImg3 from './nooni 03.png';
 import { Character } from './types/character';
 import { characterReferencePolicy } from './characterReference';
 import owonjangImg from './오원장 3d.png';
@@ -13,10 +17,13 @@ import deokiImg3 from './덕이 3D-03.png';
 export const CHARACTERS: Character[] = [
   { id: 'owonjang', name: 'O-wonjang (Korean Medicine)', file: '오원장 3d.png', img: owonjangImg, imgs: [owonjangImg, owonjangImg2, owonjangImg3], desc: 'White coat, absolutely NO teeth, seamless duck bill.' },
   { id: 'somi', name: 'Somi', file: '간호사 3d.png', img: somiImg, imgs: [somiImg, somiImg2, somiImg3], desc: 'Neat uniform, friendly appearance.' },
-  { id: 'deoki', name: 'Deok-i', file: '덕이 3d.png', img: deokiImg, imgs: [deokiImg, deokiImg2, deokiImg3], desc: 'Fat yellow duck with red cheeks. Actually an adult.' }
+  { id: 'deoki', name: 'Deok-i', file: '덕이 3d.png', img: deokiImg, imgs: [deokiImg, deokiImg2, deokiImg3], desc: 'Fat yellow duck with red cheeks. Actually an adult.' },
+  { id: 'nooni', name: '눈이 (Nooni)', file: 'nooni 01.png', img: nooniImg, imgs: [nooniImg, nooniImg2, nooniImg3], desc: '느긋하고 다정한 유제품 디저트 가게 사장. 우유 아이스크림을 좋아하며 추위와 눈에 강하고 더위에 매우 약함. 한국어 사용.' }
 ];
 
 export const SYSTEM_PROMPT = `${characterReferencePolicy()}
+
+${NOONI_PROFILE}
 
 [SYSTEM INSTRUCTION FOR AI STUDIO: VIRAL POV SHORT-FORM DIRECTOR]
 
@@ -67,7 +74,7 @@ If the user's provided "Blog Content Extract" contains a suggested image (e.g., 
 Whenever generating a new video idea, output EXACTLY in the following format so it can be parsed:
 
 ### 0. Planning & Narrative (Korean)
-- **출연 캐릭터:** [Provide a comma-separated list of exact Character IDs you chose to appear in the prompt. ONLY USE IDs "owonjang", "somi", "deoki". e.g., owonjang, deoki]
+- **출연 캐릭터:** [Provide a comma-separated list of exact Character IDs you chose to appear in the prompt. ONLY USE IDs "owonjang", "somi", "deoki", "nooni". e.g., owonjang, deoki]
 - **고정된 공간 및 소품 배치 (LOCKED_ENVIRONMENT):** [Detailed description of the environment based EXACTLY on the blog's image suggestion. CRITICAL: Do NOT force a clinic (한의원) background if the suggestion is an office, subway, home, street, etc. Just describe the suggested environment accurately.]
 - **고정된 캐릭터 위치 및 의상 (LOCKED_OUTFIT_AND_POSITION):** [Exact clothing and physical position...]
 - **물리적 제약 조건 (CRITICAL):** [Describe strict boundaries...]

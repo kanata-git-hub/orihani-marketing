@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),ts=require('typescript');
 const root=path.resolve(__dirname,'..');
-const compile=(rel,imports={})=>{const m={exports:{}};const code=ts.transpileModule(fs.readFileSync(path.join(root,rel),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,esModuleInterop:true}}).outputText;new Function('require','module','exports',code)(name=>imports[name]||require(name),m,m.exports);return m.exports;};
+const compile=(rel,imports={})=>{const m={exports:{}};const code=ts.transpileModule(fs.readFileSync(path.join(root,rel),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,esModuleInterop:true}}).outputText;new Function('require','module','exports',code)(name=>imports[name]||(name.startsWith('.')?compile(path.join(path.dirname(rel),name)+'.ts',imports):require(name)),m,m.exports);return m.exports;};
 const policy=compile('src/characterReference.ts');
 const png='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=';
 const originals=Array.from({length:9},(_,i)=>({url:png,label:['오원장','소미','덕이'][Math.floor(i/3)]+' '+['Front','Side','Back'][i%3]}));
@@ -39,4 +39,21 @@ if(fs.existsSync(path.join(root,'src/services/thumbnail/geminiService.ts')))test
  // The existing request timeout is unrelated to this immediate mocked response.
  const originalTimeout=global.setTimeout;global.setTimeout=(fn,ms,...args)=>{const t=originalTimeout(fn,ms,...args);if(ms===180000)t.unref();return t;};
  try{assert.equal(await service.generateImage({model:'gemini-3.1-flash-image',prompt:'Draw yellow fingers',referenceImages:[...originals,{url:png,role:'scene'}]}),png);assert.equal(request.contents.parts.filter(p=>p.inlineData).length,10);assert.match(request.contents.parts.at(-1).text,/O-wonjang: pale warm cream/);}finally{global.setTimeout=originalTimeout;}
+});
+
+test('Nooni names are detected without treating weather or eyes as a character',()=>{
+ for(const name of ['Nooni','nooni','눈이','눈이가 아이스크림을 든다','눈이는 웃는다','눈이의 목도리','눈이와 소미','눈이 (Front View)'])assert.ok(policy.characterIdsInText(name).includes('nooni'),name);
+ for(const text of ['눈이 내린다','눈이 펑펑 오는 날','눈이 소복하게 쌓인다','눈이 녹는다','눈이 아프다','오목눈이','Noonish'])assert.ok(!policy.characterIdsInText(text).includes('nooni'),text);
+ assert.ok(policy.characterIdsInText('눈이 내리는 날 눈이가 웃는다').includes('nooni'));
+ const text=policy.characterReferencePolicy(['Nooni']);
+ assert.match(text,/NOT a duck/);assert.match(text,/layered wing markings/);assert.match(text,/long narrow dark tail/);
+});
+
+test('Nooni original front, side and back PNG bytes reach the image request',async()=>{
+ const files=['nooni 01.png','nooni 02.png','nooni 03.png'];
+ const refs=files.map((file,i)=>({url:'data:image/png;base64,'+fs.readFileSync(path.join(root,'src',file)).toString('base64'),label:'눈이 (Nooni) ('+['Front View','Side View','Back View'][i]+')',role:'character'}));
+ const parts=policy.buildReferenceParts(refs,'Nooni holding milk ice cream.');
+ assert.deepEqual(parts.filter(x=>x.inlineData).map(x=>x.inlineData.data),files.map(file=>fs.readFileSync(path.join(root,'src',file)).toString('base64')));
+ assert.equal(new Set(parts.filter(x=>x.inlineData).map(x=>x.inlineData.data)).size,3);
+ assert.match(parts.at(-1).text,/Nooni: a shima-enaga/);
 });
