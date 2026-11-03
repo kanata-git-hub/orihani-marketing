@@ -2,8 +2,8 @@ import { GenerateContentResponse } from "@google/genai";
 import { getGeminiClient } from '../geminiClient';
 import { buildReferenceParts, CharacterReference } from '../../characterReference';
 
-export type ImageModel = 'gemini-3.1-flash-image';
-export type ImageSize = '512px' | '1K' | '2K' | '4K';
+export type ImageModel = 'gemini-nano-banana-2.1';
+export type ImageSize = '1K' | '2K' | '4K';
 export type AspectRatio = '1:1' | '3:4' | '4:3' | '9:16' | '16:9';
 
 export interface RefImage extends CharacterReference {}
@@ -89,7 +89,7 @@ export const generateImage = async (options: GenerationOptions): Promise<string 
   }
 };
 
-export const editImage = async (baseImage: string, prompt: string, model: ImageModel = 'gemini-3.1-flash-image'): Promise<string | null> => {
+export const editImage = async (baseImage: string, prompt: string, model: ImageModel = 'gemini-nano-banana-2.1'): Promise<string | null> => {
   try {
     const ai = getGeminiClient();
 

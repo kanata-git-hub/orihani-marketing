@@ -43,13 +43,13 @@ declare global {
 
 const MODELS: { id: ImageModel; name: string; description: string }[] = [
   { 
-    id: 'gemini-3.1-flash-image', 
-    name: 'Nano Banana 2 (Flash)', 
+    id: 'gemini-nano-banana-2.1', 
+    name: 'Nano Banana 2.1', 
     description: '' 
   }
 ];
 
-const SIZES: ImageSize[] = ['512px', '1K', '2K', '4K'];
+const SIZES: ImageSize[] = ['1K', '2K', '4K'];
 const ASPECT_RATIOS: { id: AspectRatio; label: string }[] = [
   { id: '1:1', label: '1:1' },
   { id: '9:16', label: '9:16' },
@@ -63,7 +63,7 @@ const DEFAULT_STYLE = "Vibrant, high-quality 3D render style, clean lighting, In
 export default function InstaThumbnail() {
   const [title, setTitle] = useState('');
   const [secondImageText, setSecondImageText] = useState('오리한의원과 함께하는\n건강한 다이어트');
-  const [selectedModel, setSelectedModel] = useState<ImageModel>('gemini-3.1-flash-image');
+  const [selectedModel, setSelectedModel] = useState<ImageModel>('gemini-nano-banana-2.1');
   const [selectedSize, setSelectedSize] = useState<ImageSize>('2K');
   const [selectedRatio, setSelectedRatio] = useState<AspectRatio>('9:16');
   const [referenceImages, setReferenceImages] = useState<RefImage[]>([]);

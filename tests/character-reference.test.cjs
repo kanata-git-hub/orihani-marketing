@@ -38,7 +38,7 @@ if(fs.existsSync(path.join(root,'src/services/thumbnail/geminiService.ts')))test
  let request;const service=compile('src/services/thumbnail/geminiService.ts',{'../geminiClient':{getGeminiClient:()=>({models:{generateContent:async r=>{request=r;return {candidates:[{content:{parts:[{inlineData:{data:png.split(',')[1]}}]}}]};}}})},'../../characterReference':policy});
  // The existing request timeout is unrelated to this immediate mocked response.
  const originalTimeout=global.setTimeout;global.setTimeout=(fn,ms,...args)=>{const t=originalTimeout(fn,ms,...args);if(ms===180000)t.unref();return t;};
- try{assert.equal(await service.generateImage({model:'gemini-3.1-flash-image',prompt:'Draw yellow fingers',referenceImages:[...originals,{url:png,role:'scene'}]}),png);assert.equal(request.contents.parts.filter(p=>p.inlineData).length,10);assert.match(request.contents.parts.at(-1).text,/O-wonjang: pale warm cream/);}finally{global.setTimeout=originalTimeout;}
+ try{assert.equal(await service.generateImage({model:'gemini-nano-banana-2.1',prompt:'Draw yellow fingers',referenceImages:[...originals,{url:png,role:'scene'}]}),png);assert.equal(request.contents.parts.filter(p=>p.inlineData).length,10);assert.match(request.contents.parts.at(-1).text,/O-wonjang: pale warm cream/);}finally{global.setTimeout=originalTimeout;}
 });
 
 test('Nooni names are detected without treating weather or eyes as a character',()=>{
