@@ -32,3 +32,11 @@ test('legacy image requests migrate without mutating inputs or accepting transpo
   }
   assert.throws(() => safeGeneration({ model: 'gemini-3.1-flash-image-preview', contents: 'test' }), /INVALID_GENERATION/);
 });
+
+test('only inline text and image inputs are accepted from the browser', () => {
+  const base = { model: 'gemini-3.6-flash', contents: 'example' };
+  for (const part of [{ fileData: { fileUri: 'files/example' } }, { functionResponse: {} }, { inlineData: { data: 'AA==', mimeType: 'text/plain' } }]) {
+    assert.throws(() => safeGeneration({ ...base, contents: { parts: [part] } }), /INVALID_GENERATION/);
+    assert.throws(() => safeGeneration({ ...base, config: { systemInstruction: { parts: [part] } } }), /INVALID_GENERATION/);
+  }
+});

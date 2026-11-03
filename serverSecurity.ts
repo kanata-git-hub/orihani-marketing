@@ -16,6 +16,16 @@ export async function verifyAppUser(token: unknown, request: typeof fetch = fetc
   if (!lookup.ok) throw Error(lookup.status >= 500 || lookup.status === 429 ? 'AUTH_UNAVAILABLE' : 'AUTH_REQUIRED');
   const account = (await lookup.json()).users?.[0];
   if (typeof account?.localId !== 'string' || typeof account.email !== 'string' || account.disabled || account.emailVerified !== true) throw Error('AUTH_REQUIRED');
+  // accounts:lookup has authenticated the exact bearer. Bind its original sign-in
+  // to this project and current account, including the Firebase revocation boundary.
+  let claims;
+  try { claims = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString('utf8')); }
+  catch { throw Error('AUTH_REQUIRED'); }
+  const validSince = Number(account.validSince ?? 0);
+  if (claims?.aud !== 'gen-lang-client-0165298283' || claims.iss !== 'https://securetoken.google.com/gen-lang-client-0165298283' ||
+      claims.sub !== account.localId || claims.email !== account.email || claims.email_verified !== true ||
+      !Number.isSafeInteger(claims.auth_time) || claims.auth_time <= 0 ||
+      !Number.isSafeInteger(validSince) || validSince < 0 || claims.auth_time < validSince) throw Error('AUTH_REQUIRED');
   const user = { uid: account.localId, email: account.email };
   if (account.email === OWNER || ACCESS_POLICY === 'signed-in') return user;
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };

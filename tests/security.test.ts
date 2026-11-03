@@ -3,7 +3,11 @@ import assert from 'node:assert/strict';
 import express from 'express';
 import { verifyAppUser, authenticatedApi, ACCESS_POLICY } from '../serverSecurity.ts';
 
-const token = 'synthetic-firebase-token-for-local-tests';
+const makeToken = (changes = {}) => `test.${Buffer.from(JSON.stringify({
+  aud: 'gen-lang-client-0165298283', iss: 'https://securetoken.google.com/gen-lang-client-0165298283',
+  sub: 'user-one', email: 'member@example.test', email_verified: true, auth_time: 100, ...changes,
+})).toString('base64url')}.test`;
+const token = makeToken();
 const account = { localId: 'user-one', email: 'member@example.test', emailVerified: true };
 const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -18,7 +22,7 @@ test('rejects missing, invalid, disabled and unverified identities before access
 });
 
 test('owner and existing approved/signed-in users retain access', async () => {
-  const owner = await verifyAppUser(token, async () => reply({ users: [{ ...account, email: 'kanata840@gmail.com' }] }));
+  const owner = await verifyAppUser(makeToken({ email: 'kanata840@gmail.com' }), async () => reply({ users: [{ ...account, email: 'kanata840@gmail.com' }] }));
   assert.equal(owner.uid, 'user-one');
   const requests: string[] = [];
   const user = await verifyAppUser(token, async (url, options) => {
@@ -65,4 +69,10 @@ test('real HTTP middleware blocks unauthenticated calls before body parsing and 
     assert.deepEqual(await response.json(), { input: { prompt: '기존 프롬프트', image: 'unchanged' }, uid: 'user-one' });
     assert.equal(paidCalls, 1);
   } finally { await new Promise<void>(resolve => server.close(() => resolve())); }
+});
+
+test('checks identity and project on the verified token and rejects revoked sessions', async () => {
+  for (const changes of [{ sub: 'another' }, { email: 'another@example.test' }, { email_verified: false }, { auth_time: 99 }, { aud: 'another-project' }]) {
+    await assert.rejects(verifyAppUser(makeToken(changes),async()=>reply({ users:[{...account,validSince:'100'}] })),/AUTH_REQUIRED/);
+  }
 });

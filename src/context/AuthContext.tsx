@@ -1,7 +1,8 @@
+import { openWorkspace, closeWorkspaceIfChanged } from '../accountWorkspace';
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import { auth, db } from "../firebase";
-import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
+import { collection, query, where, getDocsFromServer, doc, setDoc } from "firebase/firestore";
 
 interface AuthContextType {
   user: User | null;
@@ -25,49 +26,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let revision = 0;
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        if (currentUser.email === "kanata840@gmail.com") {
-          setIsAdmin(true);
-          setUser(currentUser);
-          setLoading(false);
-        } else {
-          try {
-            const q = query(collection(db, "approved_users"), where("email", "==", currentUser.email));
-            const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-              // Preserve existing approval documents and shared history without an admin migration.
-              await setDoc(doc(db, 'approved_access', currentUser.uid), { approvalId: querySnapshot.docs[0].id }).catch(error => {
-                // Rolling upgrades may serve the previous rules briefly; existing login still works.
-                if (error.code !== 'permission-denied') throw error;
-                console.warn('Approval reference is waiting for the updated Firestore rules.');
-              });
-              setIsAdmin(false);
-              setUser(currentUser);
-              setLoading(false);
-            } else {
-              await signOut(auth);
-              setUser(null);
-              setIsAdmin(false);
-              setLoading(false);
-              alert("승인된 사용자만 로그인할 수 있습니다. 관리자에게 승인을 요청하세요.");
-            }
-          } catch (error) {
-            console.error("Auth verification failed", error);
-            await signOut(auth);
-            setUser(null);
-            setIsAdmin(false);
-            setLoading(false);
-            alert("로그인 권한 확인 중 오류가 발생했습니다.");
-          }
+      const attempt = ++revision;
+      const current = () => attempt === revision && auth.currentUser?.uid === currentUser?.uid;
+      setUser(null);
+      setIsAdmin(false);
+      if (closeWorkspaceIfChanged(currentUser?.uid ?? null)) {
+        // Drop previous React state, object URLs and any queued authenticated work.
+        window.location.reload();
+        return;
+      }
+      if (!currentUser) { setLoading(false); return; }
+      setLoading(true);
+      const admin = currentUser.email === "kanata840@gmail.com";
+      try {
+        if (!currentUser.emailVerified || !currentUser.email) throw Error('확인된 이메일로 로그인해주세요.');
+        if (!admin) {
+          const q = query(collection(db, "approved_users"), where("email", "==", currentUser.email));
+          const approvals = await getDocsFromServer(q);
+          if (!current()) return;
+          if (approvals.empty) throw Error('승인된 사용자만 로그인할 수 있습니다.');
+          await setDoc(doc(db, 'approved_access', currentUser.uid), { approvalId: approvals.docs[0].id }).catch(error => {
+            if (error.code !== 'permission-denied') throw error;
+          });
         }
-      } else {
-        setUser(null);
-        setIsAdmin(false);
+        if (!current()) return;
+        openWorkspace(currentUser.uid);
+        setUser(currentUser);
+        setIsAdmin(admin);
         setLoading(false);
+      } catch {
+        if (!current()) return;
+        await signOut(auth);
+        alert("로그인 권한을 확인하지 못했습니다. 계정과 연결 상태를 확인해주세요.");
       }
     });
-    return unsubscribe;
+    return () => { revision++; unsubscribe(); };
   }, []);
 
   const login = async () => {

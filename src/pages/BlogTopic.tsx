@@ -1,3 +1,4 @@
+import { accountStorage } from '../accountWorkspace';
 import React, { useState, useEffect } from 'react';
 import { Play, Loader2, CheckCircle, AlertCircle, RefreshCw, MessageSquare, Users, Briefcase, TrendingUp, DollarSign, ArrowRight, UserCheck, ThumbsUp, ThumbsDown, Scale } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,12 +15,12 @@ export default function BlogTopic() {
   
   const [isRunning, setIsRunning] = useState(false);
   const [topicMode, setTopicMode] = useState<TopicMode>(() =>
-    restoreTopicMode(localStorage.getItem('topicMode'))
+    restoreTopicMode(accountStorage.getItem('topicMode'))
   );
   const [logs, setLogs] = useState<AgentLog[]>([]);
   const [result, setResult] = useState<FinalOutput | null>(() => {
     try {
-      const saved = localStorage.getItem('multiAgentResult');
+      const saved = accountStorage.getItem('multiAgentResult');
       return saved ? JSON.parse(saved) : null;
     } catch (e) {
       return null;
@@ -28,26 +29,26 @@ export default function BlogTopic() {
   const [error, setError] = useState<string | null>(null);
   
   const [userFeedbackInput, setUserFeedbackInput] = useState(() => {
-    return localStorage.getItem('userFeedbackInput') || "";
+    return accountStorage.getItem('userFeedbackInput') || "";
   });
   const [isWaitingForUser, setIsWaitingForUser] = useState(() => {
-    return localStorage.getItem('isWaitingForUser') === 'true';
+    return accountStorage.getItem('isWaitingForUser') === 'true';
   });
 
   useEffect(() => {
     if (result) {
-      localStorage.setItem('multiAgentResult', JSON.stringify(result));
+      accountStorage.setItem('multiAgentResult', JSON.stringify(result));
     } else {
-      localStorage.removeItem('multiAgentResult');
+      accountStorage.removeItem('multiAgentResult');
     }
   }, [result]);
 
   useEffect(() => {
-    localStorage.setItem('userFeedbackInput', userFeedbackInput);
+    accountStorage.setItem('userFeedbackInput', userFeedbackInput);
   }, [userFeedbackInput]);
 
   useEffect(() => {
-    localStorage.setItem('isWaitingForUser', String(isWaitingForUser));
+    accountStorage.setItem('isWaitingForUser', String(isWaitingForUser));
   }, [isWaitingForUser]);
 
   
@@ -138,7 +139,7 @@ export default function BlogTopic() {
             onChange={event => {
               const next = event.target.value as TopicMode;
               setTopicMode(next);
-              localStorage.setItem('topicMode', next);
+              accountStorage.setItem('topicMode', next);
             }}
             className="rounded-lg border border-[#e8dfd1] bg-white px-3 py-2 disabled:opacity-50"
           >

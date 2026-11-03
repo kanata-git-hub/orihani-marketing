@@ -1,4 +1,5 @@
 import express from 'express';
+import { authenticatedApi, verifyAppUser } from '../../serverSecurity';
 import multer from 'multer';
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
@@ -37,22 +38,28 @@ export function audioResponse(result: any): Buffer {
 }
 export const editorRouter = express.Router();
 const active = new Set<string>();
-editorRouter.use(async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
-    if (!token) { res.status(401).json({ error: '로그인 후 사용해주세요.' }); return; }
-    const app = getApps().find(a => a.name === 'video-editor') || initializeApp({ projectId: process.env.EDITOR_FIREBASE_PROJECT_ID || 'gen-lang-client-0165298283' }, 'video-editor');
-    const user = await getAuth(app).verifyIdToken(token);
-    const allowed = process.env.EDITOR_ALLOWED_EMAILS?.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-    if (allowed?.length && !allowed.includes(user.email?.toLowerCase() || '')) { res.status(403).json({ error: '영상 편집 사용 권한이 없습니다.' }); return; }
-    if (!user.email || !user.email_verified) { res.status(403).json({ error: '확인된 이메일로 로그인해주세요.' }); return; }
-    if (user.email !== 'kanata840@gmail.com') {
-      const approved = await getFirestore(app, firebaseConfig.firestoreDatabaseId).collection('approved_users').where('email', '==', user.email).limit(1).get();
-      if (approved.empty) { res.status(403).json({ error: '영상 편집 사용 권한이 없습니다.' }); return; }
+editorRouter.use(authenticatedApi(async token => {
+  const projectId = process.env.EDITOR_FIREBASE_PROJECT_ID || firebaseConfig.projectId;
+  let user;
+  if (projectId === firebaseConfig.projectId) {
+    user = await verifyAppUser(token);
+  } else {
+    // Installations with a separate editor identity project keep their existing allowlist.
+    const app = getApps().find(a => a.name === 'video-editor') || initializeApp({ projectId }, 'video-editor');
+    let identity;
+    try { identity = await getAuth(app).verifyIdToken(String(token), true); }
+    catch { throw Error('AUTH_REQUIRED'); }
+    if (!identity.email || !identity.email_verified) throw Error('AUTH_REQUIRED');
+    if (identity.email !== 'kanata840@gmail.com') {
+      const approved = await getFirestore(app, firebaseConfig.firestoreDatabaseId).collection('approved_users').where('email', '==', identity.email).limit(1).get();
+      if (approved.empty) throw Error('APPROVAL_REQUIRED');
     }
-    res.locals.uid = user.uid; next();
-  } catch { res.status(401).json({ error: '로그인을 다시 확인해주세요.' }); }
-});
+    user = { uid: identity.uid, email: identity.email };
+  }
+  const allowed = process.env.EDITOR_ALLOWED_EMAILS?.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  if (allowed?.length && !allowed.includes(user.email.toLowerCase())) throw Error('APPROVAL_REQUIRED');
+  return user;
+}));
 editorRouter.use((req, res, next) => {
   if (req.method !== 'POST' || !['/voice', '/render', '/transcribe'].includes(req.path)) { res.status(404).json({ error: '지원하지 않는 편집 요청입니다.' }); return; }
   const uid = res.locals.uid;

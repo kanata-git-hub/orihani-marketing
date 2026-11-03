@@ -1,3 +1,4 @@
+import { accountKey } from '../accountWorkspace';
 export interface ThumbnailHistoryItem {
   id: string;
   title: string;
@@ -13,7 +14,7 @@ const STORE_NAME = 'thumbnails';
 
 const initDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1);
+    const request = indexedDB.open(accountKey(DB_NAME), 1);
     request.onupgradeneeded = (e: any) => {
       e.target.result.createObjectStore(STORE_NAME);
     };
