@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM node:22-trixie-slim
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg fontconfig fonts-noto-cjk tzdata && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
