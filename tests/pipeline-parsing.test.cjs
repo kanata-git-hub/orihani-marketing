@@ -149,7 +149,8 @@ test('actual UI restores the broken draft, generates a scenario and saves prompt
   const saved = [], requests = [];
   let snapshot, answer = scenario;
   const history = [{ id: 'old', title: '별개 이전 시나리오', rawPlan: scenario, imagePrompt: 'old image', videoPrompt: 'old video', createdAt: 1 }];
-  const common = { '../context/PipelineContext': context, '../utils/pipelineParsing': parsing, 'framer-motion': { motion: { div: 'div' }, AnimatePresence: React.Fragment } };
+  const workspace = load('src/accountWorkspace.ts'); workspace.openWorkspace('fixture-user');
+  const common = { '../accountWorkspace': workspace, '../context/PipelineContext': context, '../utils/pipelineParsing': parsing, 'framer-motion': { motion: { div: 'div' }, AnimatePresence: React.Fragment } };
   const Blog = load('src/pages/BlogPost.tsx', {
     ...common, '../utils/blogHtml': { convertToBlogHtml: text => text }, 'react-markdown': () => null,
     '../services/blog/geminiService': {}, 'firebase/firestore': {}, '../firebase': { db: {} }
@@ -160,7 +161,7 @@ test('actual UI restores the broken draft, generates a scenario and saves prompt
     '../services/geminiClient': { getGeminiClient: () => ({ models: { generateContent: async params => { requests.push(params); return { text: answer }; } } }) },
     '../hooks/useScenarioHistory': { loadScenarioHistory: async () => history, saveScenarioHistory: async items => saved.push(items) }
   }).default;
-  localStorage.setItem('content_history', JSON.stringify([{ id: 'draft', timestamp: 1, mode: 'treatment', topic: '기획한 주제', treatment: '한약', result: { ...parseBlogResponse(plain), rawResponse: undefined, blog: bold, instaTitle: '**', instaContent: '**\n요약', videoScript: [] } }]));
+  workspace.accountStorage.setItem('content_history', JSON.stringify([{ id: 'draft', timestamp: 1, mode: 'treatment', topic: '기획한 주제', treatment: '한약', result: { ...parseBlogResponse(plain), rawResponse: undefined, blog: bold, instaTitle: '**', instaContent: '**\n요약', videoScript: [] } }]));
   function Harness() {
     snapshot = context.usePipeline();
     return React.createElement(React.Fragment, null,

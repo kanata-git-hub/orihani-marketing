@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),ts=require('typescript');
 const root=path.resolve(__dirname,'..'),compiled=path.join(root,'.editor-test');
 fs.mkdirSync(compiled,{recursive:true});fs.writeFileSync(path.join(compiled,'package.json'),'{"type":"commonjs"}');
-for(const f of ['src/editor/model.ts','src/editor/source.ts','src/editor/speech.ts','src/editor/storage.ts','src/editor/media.ts','server/editor/render.ts','server/editor/transcribe.ts','server/editor/routes.ts']){
+for(const f of ['serverSecurity.ts','src/accountWorkspace.ts','src/editor/model.ts','src/editor/source.ts','src/editor/speech.ts','src/editor/storage.ts','src/editor/media.ts','server/editor/render.ts','server/editor/transcribe.ts','server/editor/routes.ts']){
  const dest=path.join(compiled,f.replace(/\.ts$/,'.js'));fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,ts.transpileModule(fs.readFileSync(path.join(root,f),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,esModuleInterop:true}}).outputText);
 }
 fs.copyFileSync(path.join(root,'firebase-applet-config.json'),path.join(compiled,'firebase-applet-config.json'));
@@ -91,4 +91,20 @@ test('Nooni speech never becomes narration TTS',()=>{
  }
  const source=marketingSource(record('🎙️ 나레이션 (TTS): 오늘은 덥다.\n눈이: "아이스크림 드세요."'));
  assert.equal(source.plan.narration,'오늘은 덥다.');
+});
+
+test('browser drafts require a verified workspace and never fall back to an unowned key',()=>{
+  const {openWorkspace, closeWorkspaceIfChanged, accountKey} = require(path.join(compiled,'src/accountWorkspace.js'));
+  assert.throws(()=>accountKey('current'));
+  openWorkspace('first-user');
+  const first=accountKey('current');
+  assert.notEqual(first,'current');
+  assert.equal(closeWorkspaceIfChanged('first-user'),false);
+  assert.equal(closeWorkspaceIfChanged('second-user'),true);
+  assert.throws(()=>accountKey('current'));
+  assert.throws(()=>openWorkspace('second-user'));
+  delete require.cache[require.resolve(path.join(compiled,'src/accountWorkspace.js'))];
+  const next=require(path.join(compiled,'src/accountWorkspace.js'));
+  next.openWorkspace('second-user');
+  assert.notEqual(next.accountKey('current'),first);
 });

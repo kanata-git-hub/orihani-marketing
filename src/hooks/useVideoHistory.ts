@@ -1,3 +1,4 @@
+import { accountKey } from '../accountWorkspace';
 export interface VideoHistoryItem {
   id: string;
   diseaseName: string;
@@ -12,7 +13,7 @@ const STORE_NAME = 'videos';
 
 export const initVideoDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1);
+    const request = indexedDB.open(accountKey(DB_NAME), 1);
     request.onupgradeneeded = (e: any) => {
       e.target.result.createObjectStore(STORE_NAME);
     };

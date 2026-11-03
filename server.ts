@@ -16,14 +16,15 @@ async function startServer() {
 
   app.use(cors());
   app.use("/api/editor", editorRouter);
-  app.use('/api/generate', requireUser);
-  app.use(express.json({ limit: "50mb" }));
 
   // Exponential Backoff API proxy example
-  app.post("/api/generate", async (req, res) => {
+  app.post("/api/generate", requireUser, express.json({ limit: "50mb" }), async (req, res) => {
     let generationRequest;
     try { generationRequest = safeGeneration(req.body); }
     catch { res.status(400).json({ error: '지원하지 않는 AI 요청 설정입니다.' }); return; }
+    const cancel = new AbortController();
+    const stop = () => { if (!res.writableFinished) cancel.abort(); };
+    res.once('close', stop);
     try {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
@@ -37,9 +38,12 @@ async function startServer() {
       
       while (retries > 0) {
         try {
-          const response = await ai.models.generateContent(generationRequest);
-          // Return both text and the raw response, or whatever the client needs
-          return res.json({ text: response.text, ...response });
+          if (cancel.signal.aborted) return;
+          const response = await ai.models.generateContent({
+            ...generationRequest,
+            config: { ...generationRequest.config, abortSignal: AbortSignal.any([cancel.signal, AbortSignal.timeout(180000)]) },
+          });
+          return res.json({ text: response.text, candidates: response.candidates });
         } catch (error: any) {
           if (error.status === 429 && retries > 1) {
             retries--;
@@ -51,8 +55,13 @@ async function startServer() {
         }
       }
     } catch (error: any) {
-      console.error("Error calling Gemini API:", error);
-      res.status(500).json({ error: error.message });
+      if (res.destroyed) return;
+      const upstream = Number(error?.status);
+      const status = [400, 404, 429, 500, 503].includes(upstream) ? upstream : 502;
+      console.error("Generation request failed", { status });
+      res.status(status).json({ error: `AI 서비스 요청을 완료하지 못했습니다 (${status}).` });
+    } finally {
+      res.off('close', stop);
     }
   });
 

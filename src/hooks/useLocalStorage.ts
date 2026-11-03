@@ -1,9 +1,10 @@
+import { accountStorage } from '../accountWorkspace';
 import { useState } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
-      const item = window.localStorage.getItem(key);
+      const item = accountStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
       console.error(error);
@@ -16,7 +17,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
       if (typeof window !== "undefined") {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        accountStorage.setItem(key, JSON.stringify(valueToStore));
       }
     } catch (error) {
       console.error(error);
@@ -27,7 +28,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       setStoredValue(initialValue);
       if (typeof window !== "undefined") {
-        window.localStorage.removeItem(key);
+        accountStorage.removeItem(key);
       }
     } catch (error) {
       console.error(error);

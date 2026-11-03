@@ -1,3 +1,4 @@
+import { accountStorage } from '../accountWorkspace';
 import { convertToBlogHtml } from '../utils/blogHtml';
 import React, { useState, useEffect } from 'react';
 import { Loader2, PenLine, Instagram, Copy, Check, Sparkles, Video, ExternalLink, History, Trash2, ChevronRight, Play, LayoutDashboard } from 'lucide-react';
@@ -51,7 +52,7 @@ export default function BlogPost() {
   }, [sharedTopic, sharedTreatment, sharedFormat]);
 
   useEffect(() => {
-    const savedHistory = localStorage.getItem('content_history');
+    const savedHistory = accountStorage.getItem('content_history');
     if (savedHistory) {
       try {
         setHistory(JSON.parse(savedHistory));
@@ -64,7 +65,7 @@ export default function BlogPost() {
   const saveToHistory = (newItem: HistoryItem) => {
     setHistory(prev => {
       const updated = [newItem, ...prev].slice(0, 50);
-      localStorage.setItem('content_history', JSON.stringify(updated));
+      accountStorage.setItem('content_history', JSON.stringify(updated));
       return updated;
     });
   };
@@ -73,7 +74,7 @@ export default function BlogPost() {
     e.stopPropagation();
     setHistory(prev => {
       const updated = prev.filter(item => item.id !== id);
-      localStorage.setItem('content_history', JSON.stringify(updated));
+      accountStorage.setItem('content_history', JSON.stringify(updated));
       return updated;
     });
   };
@@ -310,7 +311,7 @@ export default function BlogPost() {
                     onClick={() => {
                       if (confirm('모든 히스토리를 삭제하시겠습니까?')) {
                         setHistory([]);
-                        localStorage.removeItem('content_history');
+                        accountStorage.removeItem('content_history');
                       }
                     }}
                     className="text-[10px] text-red-500 hover:underline font-bold uppercase tracking-widest transition-colors"

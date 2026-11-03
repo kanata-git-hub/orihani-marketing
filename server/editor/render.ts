@@ -15,9 +15,14 @@ export function command(binary: string, args: string[], cwd: string, signal?: Ab
   });
 }
 const ff = () => process.env.FFMPEG_PATH || 'ffmpeg';
+// Apply these limits on every pass that opens an uploaded file, including the actual decode.
+export function mediaInput(file: string): string[] {
+  return ['-protocol_whitelist', 'file', '-format_whitelist', 'mov,matroska,webm,wav', '-max_streams', '32',
+    '-max_pixels', '16777216', '-threads', '2', '-i', file];
+}
 export async function inspect(file: string, cwd: string, signal?: AbortSignal) {
   // ffmpeg can inspect and decode without a separate ffprobe installation.
-  const log = await command(ff(), ['-hide_banner', '-protocol_whitelist', 'file,pipe', '-format_whitelist', 'mov,matroska,webm,wav', '-i', file, '-t', '0.05', '-f', 'null', '-'], cwd, signal);
+  const log = await command(ff(), ['-hide_banner', ...mediaInput(file), '-t', '0.05', '-f', 'null', '-'], cwd, signal);
   const m = log.match(/Duration: (\d+):(\d+):(\d+(?:\.\d+)?)/);
   if (!m) throw Error('영상 또는 음성 길이를 읽을 수 없습니다.');
   return { duration: +m[1] * 3600 + +m[2] * 60 + +m[3], audio: /Audio:/.test(log), video: /Video:/.test(log) };
@@ -55,7 +60,7 @@ export async function render(p: EditPlan, videos: string[], voice: string | unde
   for (let i = 0; i < videos.length; i++) {
     const meta = await inspect(videos[i], dir, signal);
     if (!meta.video || meta.duration < lengths[i] - 0.15 || meta.duration > lengths[i] + 0.5) throw Error(`${i + 1}번 영상은 ${lengths[i]}초 영상이어야 합니다. 현재 ${meta.duration.toFixed(2)}초입니다.`);
-    await command(ff(), ['-y', '-nostdin', '-i', videos[i], ...(!meta.audio ? ['-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo'] : []), '-map', '0:v:0', '-map', meta.audio ? '0:a:0' : '1:a:0', '-vf', 'scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30,tpad=stop_mode=clone:stop_duration=0.15', '-af', 'apad', '-t', String(lengths[i]), '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-ar', '48000', '-ac', '2', '-threads', '2', `clip${i}.mp4`], dir, signal);
+    await command(ff(), ['-y', '-nostdin', ...mediaInput(videos[i]), ...(!meta.audio ? ['-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo'] : []), '-map', '0:v:0', '-map', meta.audio ? '0:a:0' : '1:a:0', '-vf', 'scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30,tpad=stop_mode=clone:stop_duration=0.15', '-af', 'apad', '-t', String(lengths[i]), '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-ar', '48000', '-ac', '2', '-threads', '2', `clip${i}.mp4`], dir, signal);
   }
   await writeFile(path.join(dir, 'clips.txt'), videos.map((_, i) => `file 'clip${i}.mp4'`).join('\n'));
   await command(ff(), ['-y', '-nostdin', '-f', 'concat', '-safe', '1', '-i', 'clips.txt', '-c', 'copy', 'joined.mp4'], dir, signal);
@@ -71,7 +76,7 @@ export async function render(p: EditPlan, videos: string[], voice: string | unde
     filters+=segments.map((s,i)=>`[src${i}]atrim=start=${s.sourceStart}:end=${s.sourceEnd},asetpts=PTS-STARTPTS,atempo=${p.voiceSpeed},volume=${p.voiceVolume},adelay=${Math.round(s.start*1000)}:all=1[voice${i}];`).join('');
     filters+=`[original]${segments.map((_,i)=>`[voice${i}]`).join('')}amix=inputs=${segments.length+1}:duration=first:normalize=0,alimiter=limit=0.95:level=0[a]`;
   }else filters+='[original]alimiter=limit=0.95:level=0[a]';
-  await command(ff(), ['-y', '-nostdin', '-i', 'joined.mp4', ...(voice?['-i',voice]:[]), '-filter_complex', filters, '-map', '[v]', '-map', '[a]', '-t', String(p.duration), '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2', '-movflags', '+faststart', '-threads', '2', 'finished.mp4'], dir, signal);
+  await command(ff(), ['-y', '-nostdin', '-i', 'joined.mp4', ...(voice?mediaInput(voice):[]), '-filter_complex', filters, '-map', '[v]', '-map', '[a]', '-t', String(p.duration), '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2', '-movflags', '+faststart', '-threads', '2', 'finished.mp4'], dir, signal);
   const out = await inspect('finished.mp4', dir, signal);
   if (!out.video || !out.audio || Math.abs(out.duration - p.duration) > 0.15) throw Error('완성 파일의 영상·음성 검증에 실패했습니다.');
   return path.join(dir, 'finished.mp4');
